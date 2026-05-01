@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>executor.net</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080808;
+    --surface: #0f0f0f;
+    --border: #1e1e1e;
+    --accent: #e8ff47;
+    --accent2: #47c8ff;
+    --accent3: #ff6b47;
+    --text: #f0f0f0;
+    --muted: #555;
+    --card: #111;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* noise overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    background: rgba(8,8,8,0.8);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .badge {
+    font-size: 10px;
+    background: var(--accent);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 2px;
+    font-weight: 500;
+    letter-spacing: 1px;
+  }
+
+  .hero {
+    position: relative;
+    z-index: 1;
+    padding: 80px 40px 60px;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(48px, 8vw, 96px);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -3px;
+    margin-bottom: 20px;
+  }
+
+  .hero h1 .line2 { color: var(--accent); }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .glow-line {
+    width: 1px;
+    height: 60px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    margin: 0 auto 20px;
+  }
+
+  /* tabs */
+  .tabs-wrap {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px;
+    margin-bottom: 40px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar { display: none; }
+
+  .tab {
+    padding: 12px 20px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    background: none;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tab:hover { color: var(--text); }
+
+  .tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+  }
+
+  .tab.active .dot { background: var(--accent); }
+
+  /* grid */
+  .content {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px 80px;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .coming-soon {
+    text-align: center;
+    padding: 100px 0;
+    color: var(--muted);
+  }
+
+  .coming-soon h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--border);
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.4s both;
+  }
+
+  .card:hover {
+    border-color: #333;
+    transform: translateY(-2px);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card-num {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+  }
+
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+
+  .card-platform {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  .btn-dl {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 10px 16px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+
+  .btn-dl:hover {
+    background: #fff;
+    transform: translateX(2px);
+  }
+
+  .btn-dl svg { flex-shrink: 0; }
+
+  .card.android .card-name { color: #a8e063; }
+  .card.android .btn-dl { background: #a8e063; }
+  .card.android::before { background: linear-gradient(90deg, transparent, #a8e063, transparent); }
+
+  .card.ios .card-name { color: var(--accent2); }
+  .card.ios .btn-dl { background: var(--accent2); }
+  .card.ios::before { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
+
+  .card.external .card-name { color: var(--accent3); }
+  .card.external .btn-dl { background: var(--accent3); }
+  .card.external::before { background: linear-gradient(90deg, transparent, var(--accent3), transparent); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.1s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.2s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.3s; }
+  .card:nth-child(7) { animation-delay: 0.35s; }
+  .card:nth-child(8) { animation-delay: 0.4s; }
+  .card:nth-child(9) { animation-delay: 0.45s; }
+  .card:nth-child(10) { animation-delay: 0.5s; }
+
+  .section-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  footer {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 600px) {
+    header, .tabs-wrap, .content, footer { padding-left: 16px; padding-right: 16px; }
+    .hero { padding: 40px 16px; }
+    .hero h1 { letter-spacing: -2px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">executor<span>.net</span></div>
+  <div class="badge">FREE</div>
+</header>
+
+<div class="hero">
+  <div class="glow-line"></div>
+  <h1>ROBLOX<br><span class="line2">EXECUTORS</span></h1>
+  <p>Windows &bull; Android &bull; iOS &bull; External &bull; macOS</p>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('windows', this)">
+      <span class="dot"></span> Windows
+    </button>
+    <button class="tab" onclick="switchTab('android', this)">
+      <span class="dot"></span> Android
+    </button>
+    <button class="tab" onclick="switchTab('ios', this)">
+      <span class="dot"></span> iOS
+    </button>
+    <button class="tab" onclick="switchTab('external', this)">
+      <span class="dot"></span> External
+    </button>
+    <button class="tab" onclick="switchTab('macos', this)">
+      <span class="dot"></span> macOS
+    </button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- WINDOWS -->
+  <div class="panel active" id="panel-windows">
+    <div class="section-label">Windows Executors</div>
+    <div class="grid">
+      <div class="card">
+        <div class="card-num">01 / WIN</div>
+        <div class="card-name">Bunni</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://gofile.io/d/JzrHU7" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">02 / WIN</div>
+        <div class="card-name">Swift</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://getswift.vip/download" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">03 / WIN</div>
+        <div class="card-name">Velocity</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://fileupdown.com/05f3ba575016f584?pt=WXY2emw1UVRqQ29XU01jdEJDT1BtMVpaU0RkcWNUYzNkMHRCZEVWb05teEdaak4zYVVFOVBRPT0%3D" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">04 / WIN</div>
+        <div class="card-name">Yub X</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://yub-x.net/download" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">05 / WIN</div>
+        <div class="card-name">Lx63</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://gofile.io/d/Z2nAno" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">06 / WIN</div>
+        <div class="card-name">Xeno</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://www.xeno.onl/install?hash=723d70e3bf1b4166a771e28cc44913018857bed17dd94f1fa0f051a33ea3e13e" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">07 / WIN</div>
+        <div class="card-name">Ronix</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://wrdcdn.net/r/154522/1776624538288/Ronix-Installer.exe" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">08 / WIN</div>
+        <div class="card-name">Drift</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://wrdcdn.net/r/118757/1775168720019/Release1.1.3.zip" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">09 / WIN</div>
+        <div class="card-name">Valex</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://valex.io/" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Website
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">10 / WIN</div>
+        <div class="card-name">Trigon Evo</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/jwmwp9xhriyqkql/Trigon_Evo_0.2.6.exe/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">11 / WIN</div>
+        <div class="card-name">JJSploit</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://github.com/wcrddn/wcrddn.github.io/raw/refs/heads/main/perm/jjsploit_8.17.7_x64_en-US.msi" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">12 / WIN</div>
+        <div class="card-name">Solara</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://getsolara.dev/download/static/files/BootstrapperNew.exe" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card">
+        <div class="card-num">13 / WIN</div>
+        <div class="card-name">Fluxusz</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://filedm.com/5ZSUg" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANDROID -->
+  <div class="panel" id="panel-android">
+    <div class="section-label">Android Executors</div>
+    <div class="grid">
+      <div class="card android">
+        <div class="card-num">01 / APK</div>
+        <div class="card-name">Arceus X</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://android.spdmteam.com/" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">02 / APK</div>
+        <div class="card-name">Krnl</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://krnl.filenetwork.vip/file/krnl_release_2.697.926_2025.11.2_53.apk" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">03 / APK</div>
+        <div class="card-name">Codex</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/gc3ny8s4i1novvr/Codex+v2.717.apk/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">04 / APK</div>
+        <div class="card-name">Delta</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://delta.filenetwork.vip/file/Delta-2.718.1110.apk" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">05 / APK</div>
+        <div class="card-name">Rift</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/a53ob60j5m1ddhs/Rift+3.3.0.apk/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">06 / APK</div>
+        <div class="card-name">Ronix MB</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/gl89ib0yc9h14f5/Ronix_64Bits-2.711.876.apk/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">07 / APK</div>
+        <div class="card-name">Evon</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://evon.cc/android/dl-a/Evon.apk" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card android">
+        <div class="card-num">08 / APK</div>
+        <div class="card-name">Cryptic</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/p2bnbixk4pxpl25/Cryptic_APK_2.710.707.apk/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- IOS -->
+  <div class="panel" id="panel-ios">
+    <div class="section-label">iOS Executors</div>
+    <div class="grid">
+      <div class="card ios">
+        <div class="card-num">01 / IPA</div>
+        <div class="card-name">Delta</div>
+        <div class="card-platform">iOS • Free</div>
+        <a class="btn-dl" href="https://deltaexploits.gg/delta-executor-ios" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card ios">
+        <div class="card-num">02 / IPA</div>
+        <div class="card-name">Arceus X</div>
+        <div class="card-platform">iOS • Free</div>
+        <a class="btn-dl" href="https://ios.spdmteam.com" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card ios">
+        <div class="card-num">03 / IPA</div>
+        <div class="card-name">Codex</div>
+        <div class="card-platform">iOS • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/7afzer5xxo1110n/Codex_2.674.782.ipa/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card ios">
+        <div class="card-num">04 / IPA</div>
+        <div class="card-name">Cryptic</div>
+        <div class="card-platform">iOS • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/okr6d1frv52l9zo/Cryptic_2.668.658+iOS.ipa/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card ios">
+        <div class="card-num">05 / IPA</div>
+        <div class="card-name">Ronix</div>
+        <div class="card-platform">iOS • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/vvp6w3owaug6h7z/Ronix_2.711.871.ipa/file" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXTERNAL -->
+  <div class="panel" id="panel-external">
+    <div class="section-label">External Executors</div>
+    <div class="grid">
+      <div class="card external">
+        <div class="card-num">01 / EXT</div>
+        <div class="card-name">Valex</div>
+        <div class="card-platform">External • Free</div>
+        <a class="btn-dl" href="https://github.com/1Softworks/assets/raw/refs/heads/main/Valex_External.zip" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+      <div class="card external">
+        <div class="card-num">02 / EXT</div>
+        <div class="card-name">TNG</div>
+        <div class="card-platform">External • Free</div>
+        <a class="btn-dl" href="https://zufile.com/download/Bp51qrSH31" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MACOS -->
+  <div class="panel" id="panel-macos">
+    <div class="coming-soon">
+      <h2>COMING SOON</h2>
+      <p style="color: var(--muted); font-size: 11px; letter-spacing: 2px;">macOS executors are being added</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>executor.net</span>
+  <span style="color: var(--border)">all executors are free</span>
+</footer>
+
+<script>
+  function switchTab(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
+    document.getElementById('panel-' + id).classList.add('active')
+    btn.classList.add('active')
+
+    // re-trigger animations
+    const cards = document.querySelectorAll('#panel-' + id + ' .card')
+    cards.forEach((c, i) => {
+      c.style.animation = 'none'
+      c.offsetHeight
+      c.style.animation = `fadeUp 0.4s ${i * 0.05}s both`
+    })
+  }
+</script>
+
+</body>
+</html>
