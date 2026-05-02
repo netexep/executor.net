@@ -16,6 +16,10 @@
     --text: #f0f0f0;
     --muted: #444;
     --card: #0c0c0c;
+    --gold: #c9a84c;
+    --gold2: #f0d080;
+    --gold-border: #3a2e1a;
+    --gold-card: #0e0c08;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -30,247 +34,150 @@
     cursor: none;
   }
 
-  /* CURSOR */
   #cursor-dot {
-    width: 5px;
-    height: 5px;
+    width: 5px; height: 5px;
     background: var(--accent);
     border-radius: 50%;
-    position: fixed;
-    top: 0; left: 0;
-    pointer-events: none;
-    z-index: 99999;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 99999;
     transform: translate(-50%, -50%);
     box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(232,255,71,0.4);
     transition: background 0.2s, box-shadow 0.2s;
   }
 
   #cursor-ring {
-    width: 28px;
-    height: 28px;
+    width: 28px; height: 28px;
     border: 1px solid rgba(232,255,71,0.5);
     border-radius: 50%;
-    position: fixed;
-    top: 0; left: 0;
-    pointer-events: none;
-    z-index: 99998;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 99998;
     transform: translate(-50%, -50%);
     transition: width 0.35s cubic-bezier(0.16,1,0.3,1), height 0.35s cubic-bezier(0.16,1,0.3,1), border-color 0.3s, background 0.3s;
   }
 
   #cursor-ring.hover {
-    width: 56px;
-    height: 56px;
+    width: 56px; height: 56px;
     border-color: rgba(232,255,71,0.9);
     background: rgba(232,255,71,0.04);
   }
 
-  /* TRAIL CANVAS */
-  #trail-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 99990;
-    pointer-events: none;
-  }
-
-  /* RAIN CANVAS */
-  #rain-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.18;
-  }
+  #trail-canvas { position: fixed; inset: 0; z-index: 99990; pointer-events: none; }
+  #rain-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.18; }
 
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1;
-    opacity: 0.35;
+    pointer-events: none; z-index: 1; opacity: 0.35;
   }
 
   body::after {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-    pointer-events: none;
-    z-index: 2;
+    pointer-events: none; z-index: 2;
   }
 
   header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    position: sticky; top: 0; z-index: 100;
     padding: 18px 44px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     border-bottom: 1px solid var(--border);
     background: rgba(5,5,5,0.92);
     backdrop-filter: blur(20px);
     animation: slideDown 0.6s cubic-bezier(0.16,1,0.3,1) both;
   }
 
-  @keyframes slideDown {
-    from { transform: translateY(-100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
+  @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
   .logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
   .header-right { display: flex; align-items: center; gap: 20px; }
 
   .badge {
-    font-size: 9px;
-    background: var(--accent);
-    color: #000;
-    padding: 3px 8px;
-    border-radius: 2px;
-    font-weight: 500;
-    letter-spacing: 1.5px;
+    font-size: 9px; background: var(--accent); color: #000;
+    padding: 3px 8px; border-radius: 2px; font-weight: 500; letter-spacing: 1.5px;
   }
 
   .hero {
-    position: relative;
-    z-index: 3;
+    position: relative; z-index: 3;
     padding: 90px 44px 70px;
-    text-align: center;
-    overflow: hidden;
+    text-align: center; overflow: hidden;
   }
 
   .hero-bg-text {
-    position: absolute;
-    top: 50%; left: 50%;
+    position: absolute; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     font-family: 'Syne', sans-serif;
-    font-size: clamp(80px, 20vw, 240px);
-    font-weight: 800;
+    font-size: clamp(80px, 20vw, 240px); font-weight: 800;
     color: rgba(255,255,255,0.015);
-    white-space: nowrap;
-    pointer-events: none;
-    letter-spacing: -10px;
-    user-select: none;
+    white-space: nowrap; pointer-events: none;
+    letter-spacing: -10px; user-select: none;
   }
 
   .hero h1 {
     font-family: 'Syne', sans-serif;
-    font-size: clamp(52px, 9vw, 100px);
-    font-weight: 800;
-    line-height: 0.92;
-    letter-spacing: -4px;
-    margin-bottom: 24px;
+    font-size: clamp(52px, 9vw, 100px); font-weight: 800;
+    line-height: 0.92; letter-spacing: -4px; margin-bottom: 24px;
     animation: heroIn 0.8s 0.3s cubic-bezier(0.16,1,0.3,1) both;
   }
 
-  @keyframes heroIn {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes heroIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
 
   .hero h1 .line2 { color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; animation: heroIn 0.8s 0.5s cubic-bezier(0.16,1,0.3,1) both; }
 
-  .hero p {
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    animation: heroIn 0.8s 0.5s cubic-bezier(0.16,1,0.3,1) both;
-  }
+  .glow-line { width: 1px; height: 60px; background: linear-gradient(to bottom, var(--accent), transparent); margin: 0 auto 28px; animation: heroIn 0.8s 0.2s cubic-bezier(0.16,1,0.3,1) both; }
 
-  .glow-line {
-    width: 1px;
-    height: 60px;
-    background: linear-gradient(to bottom, var(--accent), transparent);
-    margin: 0 auto 28px;
-    animation: heroIn 0.8s 0.2s cubic-bezier(0.16,1,0.3,1) both;
-  }
+  .tabs-wrap { position: relative; z-index: 3; padding: 0 44px; margin-bottom: 44px; animation: heroIn 0.8s 0.6s cubic-bezier(0.16,1,0.3,1) both; }
 
-  .tabs-wrap {
-    position: relative;
-    z-index: 3;
-    padding: 0 44px;
-    margin-bottom: 44px;
-    animation: heroIn 0.8s 0.6s cubic-bezier(0.16,1,0.3,1) both;
-  }
-
-  .tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-
+  .tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
 
   .tab {
     padding: 14px 22px;
-    font-size: 10px;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    cursor: none;
-    border: none;
-    background: none;
-    color: var(--muted);
-    border-bottom: 1px solid transparent;
-    margin-bottom: -1px;
+    font-size: 10px; font-family: 'DM Mono', monospace;
+    letter-spacing: 2px; text-transform: uppercase;
+    cursor: none; border: none; background: none; color: var(--muted);
+    border-bottom: 1px solid transparent; margin-bottom: -1px;
     transition: color 0.25s, border-color 0.25s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    white-space: nowrap; display: flex; align-items: center; gap: 8px;
     position: relative;
   }
 
-  .tab::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(232,255,71,0.03);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-
+  .tab::after { content: ''; position: absolute; inset: 0; background: rgba(232,255,71,0.03); opacity: 0; transition: opacity 0.2s; }
   .tab:hover::after { opacity: 1; }
   .tab:hover { color: var(--text); }
   .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-  .tab .dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: currentColor;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-  }
+  .tab.paid-tab { color: #6b5a2a; }
+  .tab.paid-tab:hover { color: var(--gold); }
+  .tab.paid-tab.active { color: var(--gold2); border-bottom-color: var(--gold); }
+  .tab.paid-tab::after { background: rgba(201,168,76,0.04); }
 
+  .tab.warning-tab { color: #5a3030; }
+  .tab.warning-tab:hover { color: #ff9980; }
+  .tab.warning-tab.active { color: var(--accent3); border-bottom-color: var(--accent3); }
+  .tab.warning-tab::after { background: rgba(255,107,71,0.04); }
+
+  .tab .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.5; transition: opacity 0.2s; }
   .tab.active .dot, .tab:hover .dot { opacity: 1; }
 
   .content { position: relative; z-index: 3; padding: 0 44px 100px; }
-
   .panel { display: none; animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) both; }
   .panel.active { display: block; }
 
-  @keyframes panelIn {
-    from { opacity: 0; transform: translateY(16px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
   .coming-soon { text-align: center; padding: 120px 0; color: var(--muted); }
   .coming-soon h2 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: #1c1c1c; letter-spacing: -1px; margin-bottom: 12px; }
 
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 2px; }
 
+  /* FREE CARDS */
   .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 30px;
-    position: relative;
-    overflow: hidden;
+    background: var(--card); border: 1px solid var(--border);
+    padding: 30px; position: relative; overflow: hidden;
     transition: border-color 0.3s, transform 0.3s;
     animation: cardIn 0.5s both;
   }
@@ -278,70 +185,32 @@
   .card:hover { border-color: #2a2a2a; transform: translateY(-3px); }
 
   .card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
     background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent)), transparent);
-    opacity: 0;
-    transition: opacity 0.4s;
+    opacity: 0; transition: opacity 0.4s;
   }
 
   .card:hover::before { opacity: 1; }
 
-  .card-corner {
-    position: absolute;
-    bottom: 20px; right: 20px;
-    width: 40px; height: 40px;
-    border-right: 1px solid var(--border);
-    border-bottom: 1px solid var(--border);
-    transition: border-color 0.3s;
-  }
-
+  .card-corner { position: absolute; bottom: 20px; right: 20px; width: 40px; height: 40px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); transition: border-color 0.3s; }
   .card:hover .card-corner { border-color: var(--card-accent, var(--accent)); }
 
   .card-num { font-size: 9px; color: var(--muted); letter-spacing: 2.5px; margin-bottom: 18px; }
 
-  .card-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 24px;
-    font-weight: 700;
-    margin-bottom: 6px;
-    letter-spacing: -0.5px;
-    color: var(--card-accent, var(--accent));
-  }
-
+  .card-name { font-family: 'Syne', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 6px; letter-spacing: -0.5px; color: var(--card-accent, var(--accent)); }
   .card-platform { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; }
 
   .btn-dl {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--card-accent, var(--accent));
-    color: #000;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 10px 18px;
-    border: none;
-    cursor: none;
-    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--card-accent, var(--accent)); color: #000;
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 10px 18px; border: none; cursor: none; text-decoration: none;
     transition: background 0.15s, transform 0.15s, letter-spacing 0.2s;
-    position: relative;
-    overflow: hidden;
+    position: relative; overflow: hidden;
   }
 
-  .btn-dl::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(255,255,255,0.15);
-    transform: translateX(-100%);
-    transition: transform 0.3s;
-  }
-
+  .btn-dl::after { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.15); transform: translateX(-100%); transition: transform 0.3s; }
   .btn-dl:hover::after { transform: translateX(0); }
   .btn-dl:hover { letter-spacing: 2px; }
 
@@ -349,85 +218,231 @@
   .card.ios { --card-accent: var(--accent2); }
   .card.external { --card-accent: var(--accent3); }
 
-  .section-label {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 18px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border);
+  /* PAID CARDS */
+  .paid-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 3px; }
+
+  .card-paid {
+    background: var(--gold-card);
+    border: 1px solid var(--gold-border);
+    padding: 36px 32px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.4s, transform 0.3s, box-shadow 0.4s;
+    animation: cardIn 0.5s both;
   }
+
+  .card-paid::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--gold2), var(--gold), transparent);
+    opacity: 0.6;
+  }
+
+  .card-paid::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at top left, rgba(201,168,76,0.04), transparent 60%);
+    pointer-events: none;
+  }
+
+  .card-paid:hover {
+    border-color: var(--gold);
+    transform: translateY(-4px);
+    box-shadow: 0 0 40px rgba(201,168,76,0.08), 0 20px 40px rgba(0,0,0,0.5);
+  }
+
+  .paid-crown {
+    position: absolute; top: 18px; right: 22px;
+    font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--gold);
+    opacity: 0.7;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .paid-crown::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    box-shadow: 0 0 6px var(--gold);
+  }
+
+  .card-paid-num { font-size: 9px; color: #3a2e1a; letter-spacing: 2.5px; margin-bottom: 16px; }
+  .card-paid-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px; font-weight: 800;
+    margin-bottom: 6px; letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--gold2), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .card-paid-platform { font-size: 9px; color: #5a4a2a; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; }
+
+  .btn-paid {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold2);
+    font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 500;
+    letter-spacing: 2px; text-transform: uppercase;
+    padding: 11px 22px; cursor: none; text-decoration: none;
+    transition: all 0.3s;
+    position: relative; overflow: hidden;
+  }
+
+  .btn-paid::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), rgba(240,208,128,0.05));
+    opacity: 0; transition: opacity 0.3s;
+  }
+
+  .btn-paid:hover { border-color: var(--gold2); color: var(--gold2); letter-spacing: 2.5px; box-shadow: 0 0 20px rgba(201,168,76,0.15); }
+  .btn-paid:hover::before { opacity: 1; }
+
+  .card-paid-corner {
+    position: absolute; bottom: 22px; right: 22px;
+    width: 36px; height: 36px;
+    border-right: 1px solid var(--gold-border);
+    border-bottom: 1px solid var(--gold-border);
+    transition: border-color 0.3s;
+  }
+
+  .card-paid:hover .card-paid-corner { border-color: var(--gold); }
+
+  .paid-section-label {
+    font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+    margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--gold-border);
+    background: linear-gradient(90deg, var(--gold2), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: inline-block;
+  }
+
+  .paid-header-wrap { margin-bottom: 40px; }
+
+  .paid-header {
+    display: flex; align-items: center; gap: 18px;
+    margin-bottom: 12px;
+  }
+
+  .paid-header-icon {
+    width: 44px; height: 44px;
+    border: 1px solid var(--gold-border);
+    display: flex; align-items: center; justify-content: center;
+    background: var(--gold-card);
+    flex-shrink: 0;
+  }
+
+  .paid-header-title {
+    font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, var(--gold2), var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .paid-header-sub { font-size: 10px; color: #4a3a1a; letter-spacing: 2px; margin-top: 4px; }
+
+  .paid-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-border), transparent);
+    margin: 40px 0;
+  }
+
+  /* WARNING PANEL */
+  .warning-panel-wrap {
+    max-width: 760px; margin: 0 auto; padding: 60px 0;
+  }
+
+  .warning-header {
+    display: flex; align-items: center; gap: 20px;
+    margin-bottom: 40px;
+  }
+
+  .warning-icon {
+    width: 56px; height: 56px;
+    border: 1px solid #3a1a1a;
+    background: #0e0808;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .warning-icon::before {
+    content: '!';
+    font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800;
+    color: var(--accent3);
+  }
+
+  .warning-title { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; letter-spacing: -2px; color: var(--text); }
+  .warning-title span { color: var(--accent3); }
+
+  .warning-card {
+    background: #0a0606; border: 1px solid #2a1212;
+    padding: 36px; margin-bottom: 3px;
+    position: relative; overflow: hidden;
+  }
+
+  .warning-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent3), transparent);
+    opacity: 0.4;
+  }
+
+  .warning-card-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent3); letter-spacing: 1px; margin-bottom: 12px; }
+  .warning-card-text { font-size: 11px; color: #666; line-height: 2; letter-spacing: 0.5px; }
+  .warning-card-text strong { color: #999; font-weight: 500; }
+
+  .warning-footer {
+    margin-top: 40px; padding: 24px 36px;
+    border: 1px solid #2a1212;
+    background: #070404;
+    display: flex; align-items: center; gap: 16px;
+  }
+
+  .warning-footer-dot { width: 8px; height: 8px; background: var(--accent3); border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px var(--accent3); }
+  .warning-footer-text { font-size: 10px; color: #555; letter-spacing: 1px; line-height: 1.8; }
+
+  .section-label { font-size: 9px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
 
   .about-wrap { max-width: 700px; margin: 0 auto; padding: 60px 0; text-align: center; }
-
-  .about-glyph {
-    font-family: 'Syne', sans-serif;
-    font-size: 80px;
-    font-weight: 800;
-    color: rgba(232,255,71,0.06);
-    letter-spacing: -5px;
-    line-height: 1;
-    margin-bottom: 40px;
-    user-select: none;
-  }
-
+  .about-glyph { font-family: 'Syne', sans-serif; font-size: 80px; font-weight: 800; color: rgba(232,255,71,0.06); letter-spacing: -5px; line-height: 1; margin-bottom: 40px; user-select: none; }
   .about-title { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; color: var(--text); }
   .about-title span { color: var(--accent); }
   .about-desc { color: var(--muted); font-size: 12px; line-height: 2; letter-spacing: 0.5px; margin-bottom: 40px; }
 
-  .about-creator {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    border: 1px solid var(--border);
-    padding: 16px 28px;
-    background: var(--card);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .about-creator::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  }
-
+  .about-creator { display: inline-flex; align-items: center; gap: 12px; border: 1px solid var(--border); padding: 16px 28px; background: var(--card); position: relative; overflow: hidden; }
+  .about-creator::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); }
   .about-creator-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
   .about-creator-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
 
   .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 40px; }
-
   .stat { background: var(--card); border: 1px solid var(--border); padding: 24px 20px; text-align: center; }
   .stat-num { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -2px; margin-bottom: 6px; }
   .stat-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
 
-  footer {
-    position: relative;
-    z-index: 3;
-    border-top: 1px solid var(--border);
-    padding: 20px 44px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: var(--muted);
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    background: rgba(5,5,5,0.9);
+  footer { position: relative; z-index: 3; border-top: 1px solid var(--border); padding: 20px 44px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 10px; letter-spacing: 1.5px; background: rgba(5,5,5,0.9); }
+
+  @keyframes cardIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  .more-soon {
+    display: flex; align-items: center; gap: 14px;
+    padding: 24px 32px; border: 1px dashed #3a2e1a;
+    background: transparent; color: #3a2e1a;
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    margin-top: 3px;
   }
 
-  @keyframes cardIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+  .more-soon::before { content: '+ '; color: var(--gold); }
 
   @media (max-width: 600px) {
     header, .tabs-wrap, .content, footer { padding-left: 18px; padding-right: 18px; }
     .hero { padding: 50px 18px; }
     .hero h1 { letter-spacing: -2px; }
     .about-stats { grid-template-columns: 1fr; }
+    .paid-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -459,15 +474,19 @@
     <button class="tab" onclick="switchTab('ios', this)"><span class="dot"></span> iOS</button>
     <button class="tab" onclick="switchTab('external', this)"><span class="dot"></span> External</button>
     <button class="tab" onclick="switchTab('macos', this)"><span class="dot"></span> macOS</button>
+    <button class="tab paid-tab" onclick="switchTab('paid-windows', this)"><span class="dot"></span> Paid Windows</button>
+    <button class="tab paid-tab" onclick="switchTab('paid-external', this)"><span class="dot"></span> Paid External</button>
+    <button class="tab paid-tab" onclick="switchTab('paid-macos', this)"><span class="dot"></span> Paid macOS</button>
+    <button class="tab warning-tab" onclick="switchTab('warning', this)"><span class="dot"></span> Read Before Download</button>
     <button class="tab" onclick="switchTab('about', this)"><span class="dot"></span> About Us</button>
   </div>
 </div>
 
 <div class="content">
 
-  <!-- WINDOWS -->
+  <!-- WINDOWS FREE -->
   <div class="panel active" id="panel-windows">
-    <div class="section-label">Windows Executors</div>
+    <div class="section-label">Windows Executors — Free</div>
     <div class="grid">
       <div class="card" style="animation-delay:0.05s">
         <div class="card-num">01 / WIN</div>
@@ -609,13 +628,42 @@
         </a>
         <div class="card-corner"></div>
       </div>
-
+      <div class="card" style="animation-delay:0.75s">
+        <div class="card-num">15 / WIN</div>
+        <div class="card-name">Echo</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://mega.nz/file/W2YU1Z6Y#-3XP49FKsq5fNj7cCPN6bhEEoKXhn4YiAQ1gYX9Zg-8/hash/pGCX7y1FAgfTXkkrR7mQxJmtl4uZgr1j5DgjXBOu1a9121GR9yvRdWdsNdRjrKgT" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card" style="animation-delay:0.8s">
+        <div class="card-num">16 / WIN</div>
+        <div class="card-name">Azrix</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://filedm.com/axOIy" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card" style="animation-delay:0.85s">
+        <div class="card-num">17 / WIN</div>
+        <div class="card-name">Vega X</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://github.com/1f0yt/community/releases/download/Vegax/Vega.X.apk" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
     </div>
   </div>
 
   <!-- ANDROID -->
   <div class="panel" id="panel-android">
-    <div class="section-label">Android Executors</div>
+    <div class="section-label">Android Executors — Free</div>
     <div class="grid">
       <div class="card android" style="animation-delay:0.05s">
         <div class="card-num">01 / APK</div>
@@ -697,12 +745,52 @@
         </a>
         <div class="card-corner"></div>
       </div>
+      <div class="card android" style="animation-delay:0.45s">
+        <div class="card-num">09 / APK</div>
+        <div class="card-name">Punk X</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/4cz0juuzjfyqqm4/PunkX_64Bits.apk/file" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card android" style="animation-delay:0.5s">
+        <div class="card-num">10 / APK</div>
+        <div class="card-name">Neutron</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/k2e1wlxf8xsxvh3/Neutron_64Bits-2.710.707.apk/file" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card android" style="animation-delay:0.55s">
+        <div class="card-num">11 / APK</div>
+        <div class="card-name">Frostware</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://www.mediafire.com/file/7t92bsxg22i4ho8/Frostware+GEN+3.1.apk/file" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card android" style="animation-delay:0.6s">
+        <div class="card-num">12 / APK</div>
+        <div class="card-name">Vega X</div>
+        <div class="card-platform">Android • Free</div>
+        <a class="btn-dl" href="https://github.com/1f0yt/community/releases/download/Vegax/Vega.X.apk" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
     </div>
   </div>
 
   <!-- IOS -->
   <div class="panel" id="panel-ios">
-    <div class="section-label">iOS Executors</div>
+    <div class="section-label">iOS Executors — Free</div>
     <div class="grid">
       <div class="card ios" style="animation-delay:0.05s">
         <div class="card-num">01 / IPA</div>
@@ -757,9 +845,9 @@
     </div>
   </div>
 
-  <!-- EXTERNAL -->
+  <!-- EXTERNAL FREE -->
   <div class="panel" id="panel-external">
-    <div class="section-label">External Executors</div>
+    <div class="section-label">External Executors — Free</div>
     <div class="grid">
       <div class="card external" style="animation-delay:0.05s">
         <div class="card-num">01 / EXT</div>
@@ -794,11 +882,271 @@
     </div>
   </div>
 
-  <!-- MACOS -->
+  <!-- MACOS FREE -->
   <div class="panel" id="panel-macos">
     <div class="coming-soon">
       <h2>COMING SOON</h2>
       <p style="color: var(--muted); font-size: 10px; letter-spacing: 2px;">macOS executors are being added</p>
+    </div>
+  </div>
+
+  <!-- PAID WINDOWS -->
+  <div class="panel" id="panel-paid-windows">
+    <div class="paid-header-wrap">
+      <div class="paid-header">
+        <div class="paid-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="paid-header-title">Paid Windows</div>
+          <div class="paid-header-sub">Premium executors — visit official sites for pricing</div>
+        </div>
+      </div>
+    </div>
+    <div class="paid-grid">
+      <div class="card-paid" style="animation-delay:0.05s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">01 / WIN</div>
+        <div class="card-paid-name">Volcano</div>
+        <div class="card-paid-platform">Windows • Paid</div>
+        <a class="btn-paid" href="https://volcano.wtf/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.1s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">02 / WIN</div>
+        <div class="card-paid-name">Volt</div>
+        <div class="card-paid-platform">Windows • Paid</div>
+        <a class="btn-paid" href="https://volt.bz/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.15s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">03 / WIN</div>
+        <div class="card-paid-name">Wave</div>
+        <div class="card-paid-platform">Windows • Paid</div>
+        <a class="btn-paid" href="https://getwave.gg/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.2s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">04 / WIN</div>
+        <div class="card-paid-name">Potassium</div>
+        <div class="card-paid-platform">Windows • Paid</div>
+        <a class="btn-paid" href="https://www.potassium.pro/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.25s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">05 / WIN</div>
+        <div class="card-paid-name">Seliware</div>
+        <div class="card-paid-platform">Windows • Paid</div>
+        <a class="btn-paid" href="https://seliware.com/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.3s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">06 / WIN</div>
+        <div class="card-paid-name">Sirhurt</div>
+        <div class="card-paid-platform">Windows • Paid</div>
+        <a class="btn-paid" href="https://sirhurt.net/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAID EXTERNAL -->
+  <div class="panel" id="panel-paid-external">
+    <div class="paid-header-wrap">
+      <div class="paid-header">
+        <div class="paid-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="paid-header-title">Paid External</div>
+          <div class="paid-header-sub">Premium external executors — visit official sites for pricing</div>
+        </div>
+      </div>
+    </div>
+    <div class="paid-grid">
+      <div class="card-paid" style="animation-delay:0.05s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">01 / EXT</div>
+        <div class="card-paid-name">Ronin</div>
+        <div class="card-paid-platform">External • Paid</div>
+        <a class="btn-paid" href="https://getronin.xyz/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.1s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">02 / EXT</div>
+        <div class="card-paid-name">Dx9ware</div>
+        <div class="card-paid-platform">External • Paid</div>
+        <a class="btn-paid" href="https://cultofintellect.com/dx9ware" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.15s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">03 / EXT</div>
+        <div class="card-paid-name">Photon</div>
+        <div class="card-paid-platform">External • Paid</div>
+        <a class="btn-paid" href="https://photonsys.sellpass.io/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.2s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">04 / EXT</div>
+        <div class="card-paid-name">Isabella</div>
+        <div class="card-paid-platform">External • Paid</div>
+        <a class="btn-paid" href="https://universals.mysellauth.com/product/isabelle" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.25s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">05 / EXT</div>
+        <div class="card-paid-name">Matrix</div>
+        <div class="card-paid-platform">External • Paid</div>
+        <a class="btn-paid" href="https://matrixhubs.shop/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.3s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">06 / EXT</div>
+        <div class="card-paid-name">Matcha</div>
+        <div class="card-paid-platform">External • Paid</div>
+        <a class="btn-paid" href="https://bloxproducts.com/#Matcha" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAID MACOS -->
+  <div class="panel" id="panel-paid-macos">
+    <div class="paid-header-wrap">
+      <div class="paid-header">
+        <div class="paid-header-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        </div>
+        <div>
+          <div class="paid-header-title">Paid macOS</div>
+          <div class="paid-header-sub">Premium macOS executors — visit official sites for pricing</div>
+        </div>
+      </div>
+    </div>
+    <div class="paid-grid">
+      <div class="card-paid" style="animation-delay:0.05s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">01 / MAC</div>
+        <div class="card-paid-name">Hydrogen</div>
+        <div class="card-paid-platform">macOS • Paid</div>
+        <a class="btn-paid" href="https://hydrogenmacos.selly.store/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+      <div class="card-paid" style="animation-delay:0.1s">
+        <div class="paid-crown">PREMIUM</div>
+        <div class="card-paid-num">02 / MAC</div>
+        <div class="card-paid-name">Macsploit</div>
+        <div class="card-paid-platform">macOS • Paid</div>
+        <a class="btn-paid" href="https://www.raptor.fun/" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Visit Site
+        </a>
+        <div class="card-paid-corner"></div>
+      </div>
+    </div>
+    <div class="more-soon">More macOS executors coming soon</div>
+  </div>
+
+  <!-- READ BEFORE DOWNLOAD -->
+  <div class="panel" id="panel-warning">
+    <div class="warning-panel-wrap">
+      <div class="warning-header">
+        <div class="warning-icon"></div>
+        <div>
+          <div class="warning-title">Read Before <span>Download</span></div>
+        </div>
+      </div>
+
+      <div class="warning-card">
+        <div class="warning-card-title">We Are Not the Developers</div>
+        <div class="warning-card-text">
+          executor.net is a <strong>listing and aggregation site only</strong>. We do not create, develop, maintain, or distribute any of the executors shown on this website. All software listed here is developed and owned by their respective third-party creators. We have no affiliation with any of these projects.
+        </div>
+      </div>
+
+      <div class="warning-card">
+        <div class="warning-card-title">We Cannot Verify File Contents</div>
+        <div class="warning-card-text">
+          We do not inspect, audit, or validate the contents of any files linked on this site. <strong>We have no way of knowing what any given file contains at the time you download it.</strong> Files may change at the source after we list them. Always scan any downloaded file with antivirus software before executing it on your machine.
+        </div>
+      </div>
+
+      <div class="warning-card">
+        <div class="warning-card-title">Use At Your Own Risk</div>
+        <div class="warning-card-text">
+          Downloading and running third-party software carries inherent risk. executor.net holds <strong>no responsibility or liability</strong> for any damage, data loss, account bans, hardware issues, or any other consequences that may result from downloading or using any software listed on this site. By downloading anything from this site, you accept full responsibility for your own actions.
+        </div>
+      </div>
+
+      <div class="warning-card">
+        <div class="warning-card-title">Antivirus False Positives</div>
+        <div class="warning-card-text">
+          Many executors may trigger antivirus or Windows Defender warnings. <strong>This does not necessarily mean the file is malicious</strong> — executor software commonly trips heuristic detection due to its nature. However, we cannot confirm safety either. Proceed with caution and use your own judgment.
+        </div>
+      </div>
+
+      <div class="warning-card">
+        <div class="warning-card-title">Third-Party Links</div>
+        <div class="warning-card-text">
+          All download links point to external hosting services such as Mediafire, Gofile, GitHub, and official executor websites. We do not control these platforms and cannot guarantee their uptime, content integrity, or availability. <strong>We are not responsible for the content found at any external URL.</strong>
+        </div>
+      </div>
+
+      <div class="warning-footer">
+        <div class="warning-footer-dot"></div>
+        <div class="warning-footer-text">
+          By using executor.net you acknowledge that all downloads are at your own risk and that this site bears no responsibility for any outcome resulting from the use of listed software. If something goes wrong, the liability lies solely with you and the software's original developer — not with us.
+        </div>
+      </div>
     </div>
   </div>
 
@@ -825,7 +1173,7 @@
       </div>
       <div class="about-stats">
         <div class="stat">
-          <div class="stat-num">29+</div>
+          <div class="stat-num">40+</div>
           <div class="stat-label">Executors</div>
         </div>
         <div class="stat">
@@ -834,7 +1182,7 @@
         </div>
         <div class="stat">
           <div class="stat-num">100%</div>
-          <div class="stat-label">Free</div>
+          <div class="stat-label">Free Listed</div>
         </div>
       </div>
     </div>
@@ -848,7 +1196,6 @@
 </footer>
 
 <script>
-  // CURSOR
   const DOT = document.getElementById('cursor-dot')
   const RING = document.getElementById('cursor-ring')
   let MX = 0, MY = 0, RX = 0, RY = 0
@@ -871,21 +1218,17 @@
   }
   animateCursor()
 
-  document.querySelectorAll('a, button, .tab, .card').forEach(el => {
+  document.querySelectorAll('a, button, .tab, .card, .card-paid').forEach(el => {
     el.addEventListener('mouseenter', () => RING.classList.add('hover'))
     el.addEventListener('mouseleave', () => RING.classList.remove('hover'))
   })
 
-  // TRAIL
   const TC = document.getElementById('trail-canvas')
   const TX = TC.getContext('2d')
   const TRAIL = []
   const TRAIL_LEN = 28
 
-  const resizeTrail = () => {
-    TC.width = window.innerWidth
-    TC.height = window.innerHeight
-  }
+  const resizeTrail = () => { TC.width = window.innerWidth; TC.height = window.innerHeight }
   resizeTrail()
   window.addEventListener('resize', resizeTrail)
 
@@ -896,37 +1239,24 @@
 
   const drawTrail = () => {
     TX.clearRect(0, 0, TC.width, TC.height)
-
-    if (TRAIL.length < 2) {
-      requestAnimationFrame(drawTrail)
-      return
-    }
-
+    if (TRAIL.length < 2) { requestAnimationFrame(drawTrail); return }
     const NOW = Date.now()
-
     for (let i = 1; i < TRAIL.length; i++) {
-      const P = TRAIL[i - 1]
-      const C = TRAIL[i]
+      const P = TRAIL[i - 1], C = TRAIL[i]
       const AGE = NOW - C.t
       const T = i / TRAIL_LEN
       const ALPHA = Math.max(0, (1 - AGE / 300)) * T * 0.7
-      const W = T * 3.5
-
       TX.beginPath()
       TX.moveTo(P.x, P.y)
       TX.lineTo(C.x, C.y)
       TX.strokeStyle = `rgba(232,255,71,${ALPHA})`
-      TX.lineWidth = W
+      TX.lineWidth = T * 3.5
       TX.lineCap = 'round'
-      TX.lineJoin = 'round'
       TX.stroke()
     }
-
-    // glow dot at trail head
     if (TRAIL.length > 0) {
       const HEAD = TRAIL[TRAIL.length - 1]
-      const AGE = NOW - HEAD.t
-      const A = Math.max(0, 1 - AGE / 200) * 0.5
+      const A = Math.max(0, 1 - (NOW - HEAD.t) / 200) * 0.5
       const GRAD = TX.createRadialGradient(HEAD.x, HEAD.y, 0, HEAD.x, HEAD.y, 12)
       GRAD.addColorStop(0, `rgba(232,255,71,${A})`)
       GRAD.addColorStop(1, 'rgba(232,255,71,0)')
@@ -935,33 +1265,20 @@
       TX.fillStyle = GRAD
       TX.fill()
     }
-
     requestAnimationFrame(drawTrail)
   }
   drawTrail()
 
-  // RAIN
   const CANVAS = document.getElementById('rain-canvas')
   const CTX = CANVAS.getContext('2d')
   let W, H, DROPS = []
 
-  const resize = () => {
-    W = CANVAS.width = window.innerWidth
-    H = CANVAS.height = window.innerHeight
-  }
+  const resize = () => { W = CANVAS.width = window.innerWidth; H = CANVAS.height = window.innerHeight }
 
   const initDrops = () => {
     DROPS = []
-    const COUNT = Math.floor(W / 6)
-    for (let i = 0; i < COUNT; i++) {
-      DROPS.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        len: Math.random() * 80 + 20,
-        speed: Math.random() * 4 + 2,
-        opacity: Math.random() * 0.6 + 0.1,
-        width: Math.random() * 0.5 + 0.2
-      })
+    for (let i = 0; i < Math.floor(W / 6); i++) {
+      DROPS.push({ x: Math.random() * W, y: Math.random() * H, len: Math.random() * 80 + 20, speed: Math.random() * 4 + 2, opacity: Math.random() * 0.6 + 0.1, width: Math.random() * 0.5 + 0.2 })
     }
   }
 
@@ -969,37 +1286,31 @@
     CTX.clearRect(0, 0, W, H)
     for (const D of DROPS) {
       CTX.beginPath()
-      const GRAD = CTX.createLinearGradient(D.x, D.y, D.x - 1, D.y + D.len)
-      GRAD.addColorStop(0, 'rgba(255,255,255,0)')
-      GRAD.addColorStop(0.5, `rgba(255,255,255,${D.opacity})`)
-      GRAD.addColorStop(1, 'rgba(255,255,255,0)')
-      CTX.strokeStyle = GRAD
+      const G = CTX.createLinearGradient(D.x, D.y, D.x - 1, D.y + D.len)
+      G.addColorStop(0, 'rgba(255,255,255,0)')
+      G.addColorStop(0.5, `rgba(255,255,255,${D.opacity})`)
+      G.addColorStop(1, 'rgba(255,255,255,0)')
+      CTX.strokeStyle = G
       CTX.lineWidth = D.width
       CTX.moveTo(D.x, D.y)
       CTX.lineTo(D.x - 1, D.y + D.len)
       CTX.stroke()
       D.y += D.speed
       D.x -= 0.3
-      if (D.y > H + D.len) {
-        D.y = -D.len
-        D.x = Math.random() * W
-      }
+      if (D.y > H + D.len) { D.y = -D.len; D.x = Math.random() * W }
     }
     requestAnimationFrame(drawRain)
   }
 
-  resize()
-  initDrops()
-  drawRain()
+  resize(); initDrops(); drawRain()
   window.addEventListener('resize', () => { resize(); initDrops() })
 
-  // TABS
   const switchTab = (id, btn) => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
     document.getElementById('panel-' + id).classList.add('active')
     btn.classList.add('active')
-    document.querySelectorAll('#panel-' + id + ' .card').forEach((c, i) => {
+    document.querySelectorAll('#panel-' + id + ' .card, #panel-' + id + ' .card-paid, #panel-' + id + ' .warning-card').forEach((c, i) => {
       c.style.animation = 'none'
       c.offsetHeight
       c.style.animation = `cardIn 0.5s ${i * 0.05}s both`
