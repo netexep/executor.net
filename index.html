@@ -31,8 +31,8 @@
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;cursor:none;}
 
-#cursor-dot{width:4px;height:4px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);box-shadow:0 0 8px var(--accent),0 0 20px rgba(124,95,230,.6);}
-#cursor-ring{width:28px;height:28px;border:1px solid rgba(184,164,248,.35);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width .35s cubic-bezier(.16,1,.3,1),height .35s cubic-bezier(.16,1,.3,1),border-color .3s;}
+#cursor-dot{width:4px;height:4px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99999;will-change:transform;box-shadow:0 0 8px var(--accent),0 0 20px rgba(124,95,230,.6);}
+#cursor-ring{width:28px;height:28px;border:1px solid rgba(184,164,248,.35);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99998;will-change:transform;transition:width .3s cubic-bezier(.16,1,.3,1),height .3s cubic-bezier(.16,1,.3,1),border-color .3s;}
 #cursor-ring.hover{width:52px;height:52px;border-color:rgba(184,164,248,.75);}
 body.paid-mode #cursor-dot{background:var(--pd-accent2);box-shadow:0 0 8px var(--pd-accent2),0 0 20px rgba(102,85,204,.6);}
 body.paid-mode #cursor-ring{border-color:rgba(102,85,204,.35);}
@@ -523,10 +523,10 @@ function goTo(plat,name){
 window.goTo=goTo
 
 const DOT=document.getElementById('cursor-dot'),RING=document.getElementById('cursor-ring')
-let mx=0,my=0,rx=0,ry=0
-document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;DOT.style.left=mx+'px';DOT.style.top=my+'px'})
-const lp=(a,b,t)=>a+(b-a)*t
-;(function ac(){rx=lp(rx,mx,.1);ry=lp(ry,my,.1);RING.style.left=rx+'px';RING.style.top=ry+'px';requestAnimationFrame(ac)})()
+document.addEventListener('mousemove',e=>{
+  DOT.style.transform=`translate(${e.clientX-2}px,${e.clientY-2}px)`
+  RING.style.transform=`translate(${e.clientX-14}px,${e.clientY-14}px)`
+},{passive:true})
 document.querySelectorAll('a,button,.tab,.card,.pcard').forEach(el=>{
   el.addEventListener('mouseenter',()=>RING.classList.add('hover'))
   el.addEventListener('mouseleave',()=>RING.classList.remove('hover'))
@@ -536,7 +536,11 @@ const TC=document.getElementById('trail-c'),TX=TC.getContext('2d'),TR=[]
 const rsz=()=>{TC.width=innerWidth;TC.height=innerHeight}
 rsz();window.addEventListener('resize',rsz)
 document.addEventListener('mousemove',e=>{TR.push({x:e.clientX,y:e.clientY,t:Date.now()});if(TR.length>28)TR.shift()})
-;(function dt(){
+let _lastTrail=0
+;(function dt(ts){
+  requestAnimationFrame(dt)
+  if(ts-_lastTrail<20)return
+  _lastTrail=ts
   TX.clearRect(0,0,TC.width,TC.height)
   const N=Date.now()
   for(let i=1;i<TR.length;i++){
@@ -547,7 +551,6 @@ document.addEventListener('mousemove',e=>{TR.push({x:e.clientX,y:e.clientY,t:Dat
     TX.strokeStyle=isPaid?`rgba(102,85,204,${al})`:`rgba(124,95,230,${al})`
     TX.lineWidth=t*2;TX.lineCap='round';TX.stroke()
   }
-  requestAnimationFrame(dt)
 })()
 
 const RC=document.getElementById('rain'),RX=RC.getContext('2d')
@@ -560,13 +563,17 @@ function newDrop(rand){
 function newStreak(){
   return{x:Math.random()*RW,y:Math.random()*(RH*.6),h:Math.random()*RH*.25+RH*.05,op:Math.random()*.018+.004,speed:Math.random()*.8+.3,w:Math.random()*.7+.1}
 }
-function mkDrops(){DRPS=[];const n=Math.floor(RW/3)+280;for(let i=0;i<n;i++)DRPS.push(newDrop(true));STREAKS=[];for(let i=0;i<8;i++)STREAKS.push(newStreak())}
+function mkDrops(){DRPS=[];const n=Math.min(Math.floor(RW/6)+80,180);for(let i=0;i<n;i++)DRPS.push(newDrop(true));STREAKS=[];for(let i=0;i<4;i++)STREAKS.push(newStreak())}
 function rzRC(){RW=RC.width=innerWidth;RH=RC.height=innerHeight;mkDrops()}
 rzRC();window.addEventListener('resize',rzRC)
 
 const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH*.5,r:Math.random()*180+80,op:Math.random()*.03+.006,dx:(.15+Math.random()*.1)*(Math.random()<.5?1:-1)}))
 
-;(function drawR(){
+let _lastRain=0
+;(function drawR(ts){
+  requestAnimationFrame(drawR)
+  if(ts-_lastRain<32)return
+  _lastRain=ts
   RX.clearRect(0,0,RW,RH)
   for(const m of MIST){
     const g=RX.createRadialGradient(m.x,m.y,0,m.x,m.y,m.r)
@@ -604,7 +611,6 @@ const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH
     }
     s.r+=1.9;s.op-=.042;if(s.op<=0)SPLASHES.splice(i,1)
   }
-  requestAnimationFrame(drawR)
 })()
 </script>
 </body>
