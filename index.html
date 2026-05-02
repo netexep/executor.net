@@ -565,138 +565,40 @@ const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH
 ;(()=>{const drawR=()=>{RX.clearRect(0,0,RW,RH);for(const m of MIST){const g=RX.createRadialGradient(m.x,m.y,0,m.x,m.y,m.r);g.addColorStop(0,`rgba(70,50,160,${m.op})`);g.addColorStop(1,'rgba(0,0,0,0)');RX.fillStyle=g;RX.beginPath();RX.arc(m.x,m.y,m.r,0,Math.PI*2);RX.fill();m.x+=m.dx;if(m.x<-m.r)m.x=RW+m.r;if(m.x>RW+m.r)m.x=-m.r};for(const s of STREAKS){const g=RX.createLinearGradient(s.x,s.y,s.x,s.y+s.h);g.addColorStop(0,'rgba(180,170,240,0)');g.addColorStop(.4,`rgba(200,195,255,${s.op})`);g.addColorStop(1,'rgba(180,170,240,0)');RX.beginPath();RX.moveTo(s.x,s.y);RX.lineTo(s.x+s.w*.5,s.y+s.h);RX.strokeStyle=g;RX.lineWidth=s.w;RX.stroke();s.y+=s.speed;if(s.y>RH){s.y=-s.h;s.x=Math.random()*RW}};for(const d of DRPS){const ex=d.x+d.wx*d.len,ey=d.y+d.len,g=RX.createLinearGradient(d.x,d.y,ex,ey);g.addColorStop(0,'rgba(180,170,240,0)');g.addColorStop(.25,`rgba(200,190,255,${d.op*.5})`);g.addColorStop(.6,`rgba(215,210,255,${d.op})`);g.addColorStop(1,`rgba(230,228,255,${d.op*.15})`);RX.beginPath();RX.moveTo(d.x,d.y);RX.lineTo(ex,ey);RX.strokeStyle=g;RX.lineWidth=d.w;RX.stroke();RX.beginPath();RX.arc(ex*.05+d.x*.95,ey*.05+d.y*.95,d.w*1.6,0,Math.PI*2);RX.fillStyle=`rgba(230,228,255,${d.op*.4})`;RX.fill();d.y+=d.speed;d.x+=d.wx;if(d.y-d.len>RH||d.x<-80||d.x>RW+80){if(d.y>0)SPLASHES.push({x:d.x,y:RH,r:0,mr:d.len*.2,op:.55,w:d.w});Object.assign(d,newDrop(false))}};for(let i=SPLASHES.length-1;i>=0;i--){const s=SPLASHES[i];RX.beginPath();RX.ellipse(s.x,s.y,s.r,s.r*.22,0,0,Math.PI*2);RX.strokeStyle=`rgba(200,190,250,${s.op*.5})`;RX.lineWidth=s.w*.7;RX.stroke();const nd=3+Math.round(s.r/s.mr*3);for(let j=0;j<nd;j++){const ang=-Math.PI+(j/nd)*Math.PI,dist=s.r*.85;RX.beginPath();RX.arc(s.x+Math.cos(ang)*dist,s.y+Math.sin(ang)*dist*.3-s.r*.1,s.w*.8,0,Math.PI*2);RX.fillStyle=`rgba(210,200,255,${s.op*.55})`;RX.fill()};s.r+=1.9;s.op-=.042;if(s.op<=0)SPLASHES.splice(i,1)};requestAnimationFrame(drawR)};drawR()})()
 
 const MBTN=document.getElementById('music-btn'),MLBL=document.getElementById('mlabel')
-let AC=null,playing=false,masterGain=null
+const AUD=new Audio('rain.mp3')
+AUD.loop=true;AUD.volume=0
 
-const buildAudio=()=>{
-  AC=new(window.AudioContext||window.webkitAudioContext)()
-  masterGain=AC.createGain()
-  masterGain.gain.value=0
-  masterGain.connect(AC.destination)
+const fadeIn=()=>{AUD.volume=Math.min(AUD.volume+0.02,0.75);if(AUD.volume<0.75)setTimeout(fadeIn,60)}
+const fadeOut=()=>{AUD.volume=Math.max(AUD.volume-0.02,0);if(AUD.volume>0)setTimeout(fadeOut,60)}
 
-  const mkReverb=(dur,decay)=>{
-    const c=AC.createConvolver(),rl=AC.sampleRate*dur,rb=AC.createBuffer(2,rl,AC.sampleRate)
-    for(let ch=0;ch<2;ch++){const d=rb.getChannelData(ch);for(let i=0;i<rl;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/rl,decay)}
-    c.buffer=rb;return c
-  }
-  const REV=mkReverb(5,1.8),REV2=mkReverb(2.5,3.2)
-  const rvg=AC.createGain();rvg.gain.value=0.7
-  const rvg2=AC.createGain();rvg2.gain.value=0.35
-  REV.connect(rvg);rvg.connect(masterGain)
-  REV2.connect(rvg2);rvg2.connect(masterGain)
-
-  const mkRain=()=>{
-    const BUF=AC.sampleRate*3,rb=AC.createBuffer(1,BUF,AC.sampleRate),d=rb.getChannelData(0)
-    for(let i=0;i<BUF;i++)d[i]=Math.random()*2-1
-    const src=AC.createBufferSource();src.buffer=rb;src.loop=true
-    const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=3800;hp.Q.value=0.4
-    const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=9000;lp.Q.value=0.3
-    const rg=AC.createGain();rg.gain.value=0.055
-    src.connect(hp);hp.connect(lp);lp.connect(rg);rg.connect(masterGain)
-    const rg2=AC.createGain();rg2.gain.value=0.025
-    lp.connect(rg2);rg2.connect(REV2)
-    src.start()
-  }
-
-  const mkDrop=()=>{
-    const o=AC.createOscillator(),g=AC.createGain()
-    const f=AC.createBiquadFilter();f.type='bandpass';f.frequency.value=1200+Math.random()*800;f.Q.value=8
-    o.type='sine';o.frequency.value=f.frequency.value
-    const now=AC.currentTime
-    g.gain.setValueAtTime(0,now)
-    g.gain.linearRampToValueAtTime(0.18,now+0.004)
-    g.gain.exponentialRampToValueAtTime(0.0001,now+0.22)
-    o.connect(f);f.connect(g);g.connect(REV);g.connect(masterGain)
-    o.start(now);o.stop(now+0.25)
-  }
-
-  const pad=(freq,start,dur,vol=0.06)=>{
-    const o1=AC.createOscillator(),o2=AC.createOscillator(),o3=AC.createOscillator(),g=AC.createGain()
-    o1.type='sine';o1.frequency.value=freq
-    o2.type='sine';o2.frequency.value=freq*2.001
-    o3.type='triangle';o3.frequency.value=freq*0.5
-    const g2=AC.createGain();g2.gain.value=0.4
-    const g3=AC.createGain();g3.gain.value=0.25
-    o1.connect(g);o2.connect(g2);g2.connect(g);o3.connect(g3);g3.connect(g)
-    g.connect(REV);g.connect(masterGain)
-    g.gain.setValueAtTime(0,start)
-    g.gain.linearRampToValueAtTime(vol,start+2.5)
-    g.gain.setValueAtTime(vol,start+dur-2)
-    g.gain.linearRampToValueAtTime(0,start+dur)
-    o1.start(start);o2.start(start);o3.start(start)
-    o1.stop(start+dur);o2.stop(start+dur);o3.stop(start+dur)
-  }
-
-  const bass=(freq,start,dur)=>{
-    const o=AC.createOscillator(),g=AC.createGain()
-    const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=180
-    o.type='sine';o.frequency.value=freq/2
-    g.gain.setValueAtTime(0,start)
-    g.gain.linearRampToValueAtTime(0.07,start+1.5)
-    g.gain.linearRampToValueAtTime(0,start+dur)
-    o.connect(lp);lp.connect(g);g.connect(masterGain)
-    o.start(start);o.stop(start+dur)
-  }
-
-  const CHORDS=[
-    {notes:[110,138.59,164.81],b:110},
-    {notes:[130.81,164.81,196],b:130.81},
-    {notes:[146.83,174.61,220],b:146.83},
-    {notes:[123.47,164.81,196],b:98},
-  ]
-  const BAR=6
-
-  const scheduleLoop=offset=>{
-    CHORDS.forEach((ch,i)=>{
-      const t=offset+i*BAR
-      ch.notes.forEach(f=>pad(f,t,BAR+1.5))
-      bass(ch.b,t,BAR)
-    })
-    const loopLen=CHORDS.length*BAR
-    const delay=(offset+loopLen-1.5-AC.currentTime)*1000
-    setTimeout(()=>scheduleLoop(offset+loopLen),Math.max(0,delay))
-  }
-
-  const dropLoop=()=>{
-    if(!playing)return
-    mkDrop()
-    setTimeout(dropLoop,800+Math.random()*2200)
-  }
-
-  mkRain()
-  scheduleLoop(AC.currentTime+0.1)
-  setTimeout(dropLoop,1200)
-
-  masterGain.gain.setValueAtTime(0,AC.currentTime)
-  masterGain.gain.linearRampToValueAtTime(0.75,AC.currentTime+3.5)
-  playing=true
-  MBTN.classList.remove('paused')
-  MLBL.textContent='Rain — executor.net'
-}
-
-const startMusic=()=>{if(AC)return;try{buildAudio()}catch(e){console.warn('Audio:',e)}}
-
-const onFirst=e=>{startMusic();document.removeEventListener('click',onFirst,true);document.removeEventListener('keydown',onFirst,true);document.removeEventListener('touchstart',onFirst,true)}
-document.addEventListener('click',onFirst,true)
-document.addEventListener('keydown',onFirst,true)
-document.addEventListener('touchstart',onFirst,true)
-
-setTimeout(()=>{if(!AC){try{const t=new(window.AudioContext||window.webkitAudioContext)();if(t.state==='running'){AC=null;buildAudio()}else t.close()}catch(e){}}},100)
+let playing=false
 
 MBTN.addEventListener('click',e=>{
   e.stopPropagation()
-  if(!AC){startMusic();return}
   playing=!playing
   if(playing){
-    masterGain.gain.cancelScheduledValues(AC.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0.75,AC.currentTime+1)
-    MBTN.classList.remove('paused');MLBL.textContent='Rain — executor.net'
-    if(AC.state==='suspended')AC.resume()
+    AUD.play()
+    fadeIn()
+    MBTN.classList.remove('paused');MLBL.textContent='Stan Loop — executor.net'
   }else{
-    masterGain.gain.cancelScheduledValues(AC.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0,AC.currentTime+1.2)
+    fadeOut()
+    setTimeout(()=>AUD.pause(),1200)
     MBTN.classList.add('paused');MLBL.textContent='Click to play'
   }
 })
+
+const onFirst=e=>{
+  if(!playing){
+    playing=true
+    AUD.play()
+    fadeIn()
+    MBTN.classList.remove('paused');MLBL.textContent='Stan Loop — executor.net'
+  }
+  document.removeEventListener('click',onFirst,true)
+  document.removeEventListener('keydown',onFirst,true)
+}
+document.addEventListener('click',onFirst,true)
+document.addEventListener('keydown',onFirst,true)
 </script>
 </body>
 </html>
