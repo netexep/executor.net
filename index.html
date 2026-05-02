@@ -19,7 +19,6 @@
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-
   html { scroll-behavior: smooth; }
 
   body {
@@ -31,10 +30,10 @@
     cursor: none;
   }
 
-  /* CUSTOM CURSOR */
+  /* CURSOR */
   #cursor-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     background: var(--accent);
     border-radius: 50%;
     position: fixed;
@@ -42,26 +41,36 @@
     pointer-events: none;
     z-index: 99999;
     transform: translate(-50%, -50%);
-    transition: background 0.2s;
+    box-shadow: 0 0 8px var(--accent), 0 0 20px rgba(232,255,71,0.4);
+    transition: background 0.2s, box-shadow 0.2s;
   }
 
   #cursor-ring {
-    width: 32px;
-    height: 32px;
-    border: 1px solid rgba(232,255,71,0.4);
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(232,255,71,0.5);
     border-radius: 50%;
     position: fixed;
     top: 0; left: 0;
     pointer-events: none;
     z-index: 99998;
     transform: translate(-50%, -50%);
-    transition: width 0.3s, height 0.3s, border-color 0.3s;
+    transition: width 0.35s cubic-bezier(0.16,1,0.3,1), height 0.35s cubic-bezier(0.16,1,0.3,1), border-color 0.3s, background 0.3s;
   }
 
   #cursor-ring.hover {
-    width: 52px;
-    height: 52px;
-    border-color: rgba(232,255,71,0.8);
+    width: 56px;
+    height: 56px;
+    border-color: rgba(232,255,71,0.9);
+    background: rgba(232,255,71,0.04);
+  }
+
+  /* TRAIL CANVAS */
+  #trail-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 99990;
+    pointer-events: none;
   }
 
   /* RAIN CANVAS */
@@ -73,7 +82,6 @@
     opacity: 0.18;
   }
 
-  /* NOISE */
   body::before {
     content: '';
     position: fixed;
@@ -84,23 +92,15 @@
     opacity: 0.35;
   }
 
-  /* SCAN LINE */
   body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.03) 2px,
-      rgba(0,0,0,0.03) 4px
-    );
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
     pointer-events: none;
     z-index: 2;
   }
 
-  /* HEADER */
   header {
     position: sticky;
     top: 0;
@@ -120,15 +120,8 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-  }
-
+  .logo { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
   .logo span { color: var(--accent); }
-
   .header-right { display: flex; align-items: center; gap: 20px; }
 
   .badge {
@@ -141,7 +134,6 @@
     letter-spacing: 1.5px;
   }
 
-  /* HERO */
   .hero {
     position: relative;
     z-index: 3;
@@ -152,8 +144,7 @@
 
   .hero-bg-text {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     font-family: 'Syne', sans-serif;
     font-size: clamp(80px, 20vw, 240px);
@@ -198,7 +189,6 @@
     animation: heroIn 0.8s 0.2s cubic-bezier(0.16,1,0.3,1) both;
   }
 
-  /* TABS */
   .tabs-wrap {
     position: relative;
     z-index: 3;
@@ -248,15 +238,10 @@
 
   .tab:hover::after { opacity: 1; }
   .tab:hover { color: var(--text); }
-
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
   .tab .dot {
-    width: 5px;
-    height: 5px;
+    width: 5px; height: 5px;
     border-radius: 50%;
     background: currentColor;
     opacity: 0.5;
@@ -265,18 +250,9 @@
 
   .tab.active .dot, .tab:hover .dot { opacity: 1; }
 
-  /* CONTENT */
-  .content {
-    position: relative;
-    z-index: 3;
-    padding: 0 44px 100px;
-  }
+  .content { position: relative; z-index: 3; padding: 0 44px 100px; }
 
-  .panel {
-    display: none;
-    animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) both;
-  }
-
+  .panel { display: none; animation: panelIn 0.5s cubic-bezier(0.16,1,0.3,1) both; }
   .panel.active { display: block; }
 
   @keyframes panelIn {
@@ -284,26 +260,10 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .coming-soon {
-    text-align: center;
-    padding: 120px 0;
-    color: var(--muted);
-  }
+  .coming-soon { text-align: center; padding: 120px 0; color: var(--muted); }
+  .coming-soon h2 { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: #1c1c1c; letter-spacing: -1px; margin-bottom: 12px; }
 
-  .coming-soon h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 36px;
-    font-weight: 800;
-    color: #1c1c1c;
-    letter-spacing: -1px;
-    margin-bottom: 12px;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    gap: 2px;
-  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 2px; }
 
   .card {
     background: var(--card);
@@ -312,12 +272,10 @@
     position: relative;
     overflow: hidden;
     transition: border-color 0.3s, transform 0.3s;
+    animation: cardIn 0.5s both;
   }
 
-  .card:hover {
-    border-color: #2a2a2a;
-    transform: translateY(-3px);
-  }
+  .card:hover { border-color: #2a2a2a; transform: translateY(-3px); }
 
   .card::before {
     content: '';
@@ -333,10 +291,8 @@
 
   .card-corner {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 40px;
-    height: 40px;
+    bottom: 20px; right: 20px;
+    width: 40px; height: 40px;
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     transition: border-color 0.3s;
@@ -344,12 +300,7 @@
 
   .card:hover .card-corner { border-color: var(--card-accent, var(--accent)); }
 
-  .card-num {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2.5px;
-    margin-bottom: 18px;
-  }
+  .card-num { font-size: 9px; color: var(--muted); letter-spacing: 2.5px; margin-bottom: 18px; }
 
   .card-name {
     font-family: 'Syne', sans-serif;
@@ -360,13 +311,7 @@
     color: var(--card-accent, var(--accent));
   }
 
-  .card-platform {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 28px;
-  }
+  .card-platform { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 28px; }
 
   .btn-dl {
     display: inline-flex;
@@ -404,7 +349,6 @@
   .card.ios { --card-accent: var(--accent2); }
   .card.external { --card-accent: var(--accent3); }
 
-  /* SECTION LABEL */
   .section-label {
     font-size: 9px;
     color: var(--muted);
@@ -415,13 +359,7 @@
     border-bottom: 1px solid var(--border);
   }
 
-  /* ABOUT */
-  .about-wrap {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 60px 0;
-    text-align: center;
-  }
+  .about-wrap { max-width: 700px; margin: 0 auto; padding: 60px 0; text-align: center; }
 
   .about-glyph {
     font-family: 'Syne', sans-serif;
@@ -434,24 +372,9 @@
     user-select: none;
   }
 
-  .about-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 38px;
-    font-weight: 800;
-    letter-spacing: -2px;
-    margin-bottom: 20px;
-    color: var(--text);
-  }
-
+  .about-title { font-family: 'Syne', sans-serif; font-size: 38px; font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; color: var(--text); }
   .about-title span { color: var(--accent); }
-
-  .about-desc {
-    color: var(--muted);
-    font-size: 12px;
-    line-height: 2;
-    letter-spacing: 0.5px;
-    margin-bottom: 40px;
-  }
+  .about-desc { color: var(--muted); font-size: 12px; line-height: 2; letter-spacing: 0.5px; margin-bottom: 40px; }
 
   .about-creator {
     display: inline-flex;
@@ -472,52 +395,15 @@
     background: linear-gradient(90deg, transparent, var(--accent), transparent);
   }
 
-  .about-creator-label {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  .about-creator-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+  .about-creator-name { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
 
-  .about-creator-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: -0.5px;
-  }
+  .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 40px; }
 
-  .about-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    margin-top: 40px;
-  }
+  .stat { background: var(--card); border: 1px solid var(--border); padding: 24px 20px; text-align: center; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 32px; font-weight: 800; color: var(--accent); letter-spacing: -2px; margin-bottom: 6px; }
+  .stat-label { font-size: 9px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
 
-  .stat {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 24px 20px;
-    text-align: center;
-  }
-
-  .stat-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    color: var(--accent);
-    letter-spacing: -2px;
-    margin-bottom: 6px;
-  }
-
-  .stat-label {
-    font-size: 9px;
-    color: var(--muted);
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  /* FOOTER */
   footer {
     position: relative;
     z-index: 3;
@@ -530,11 +416,6 @@
     font-size: 10px;
     letter-spacing: 1.5px;
     background: rgba(5,5,5,0.9);
-  }
-
-  /* CARD ANIMATIONS */
-  .card {
-    animation: cardIn 0.5s both;
   }
 
   @keyframes cardIn {
@@ -553,6 +434,7 @@
 <body>
 
 <canvas id="rain-canvas"></canvas>
+<canvas id="trail-canvas"></canvas>
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
 
@@ -572,24 +454,12 @@
 
 <div class="tabs-wrap">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('windows', this)">
-      <span class="dot"></span> Windows
-    </button>
-    <button class="tab" onclick="switchTab('android', this)">
-      <span class="dot"></span> Android
-    </button>
-    <button class="tab" onclick="switchTab('ios', this)">
-      <span class="dot"></span> iOS
-    </button>
-    <button class="tab" onclick="switchTab('external', this)">
-      <span class="dot"></span> External
-    </button>
-    <button class="tab" onclick="switchTab('macos', this)">
-      <span class="dot"></span> macOS
-    </button>
-    <button class="tab" onclick="switchTab('about', this)">
-      <span class="dot"></span> About Us
-    </button>
+    <button class="tab active" onclick="switchTab('windows', this)"><span class="dot"></span> Windows</button>
+    <button class="tab" onclick="switchTab('android', this)"><span class="dot"></span> Android</button>
+    <button class="tab" onclick="switchTab('ios', this)"><span class="dot"></span> iOS</button>
+    <button class="tab" onclick="switchTab('external', this)"><span class="dot"></span> External</button>
+    <button class="tab" onclick="switchTab('macos', this)"><span class="dot"></span> macOS</button>
+    <button class="tab" onclick="switchTab('about', this)"><span class="dot"></span> About Us</button>
   </div>
 </div>
 
@@ -724,6 +594,16 @@
         <div class="card-name">Fluxusz</div>
         <div class="card-platform">Windows • Free</div>
         <a class="btn-dl" href="https://filedm.com/5ZSUg" target="_blank">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download
+        </a>
+        <div class="card-corner"></div>
+      </div>
+      <div class="card" style="animation-delay:0.7s">
+        <div class="card-num">14 / WIN</div>
+        <div class="card-name">Neurally</div>
+        <div class="card-platform">Windows • Free</div>
+        <a class="btn-dl" href="https://gofile.io/d/9TveTd" target="_blank">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download
         </a>
@@ -934,7 +814,7 @@
       </div>
       <div class="about-stats">
         <div class="stat">
-          <div class="stat-num">28+</div>
+          <div class="stat-num">29+</div>
           <div class="stat-label">Executors</div>
         </div>
         <div class="stat">
@@ -957,7 +837,7 @@
 </footer>
 
 <script>
-  // CUSTOM CURSOR
+  // CURSOR
   const DOT = document.getElementById('cursor-dot')
   const RING = document.getElementById('cursor-ring')
   let MX = 0, MY = 0, RX = 0, RY = 0
@@ -972,8 +852,8 @@
   const lerp = (a, b, t) => a + (b - a) * t
 
   const animateCursor = () => {
-    RX = lerp(RX, MX, 0.12)
-    RY = lerp(RY, MY, 0.12)
+    RX = lerp(RX, MX, 0.1)
+    RY = lerp(RY, MY, 0.1)
     RING.style.left = RX + 'px'
     RING.style.top = RY + 'px'
     requestAnimationFrame(animateCursor)
@@ -984,6 +864,70 @@
     el.addEventListener('mouseenter', () => RING.classList.add('hover'))
     el.addEventListener('mouseleave', () => RING.classList.remove('hover'))
   })
+
+  // TRAIL
+  const TC = document.getElementById('trail-canvas')
+  const TX = TC.getContext('2d')
+  const TRAIL = []
+  const TRAIL_LEN = 28
+
+  const resizeTrail = () => {
+    TC.width = window.innerWidth
+    TC.height = window.innerHeight
+  }
+  resizeTrail()
+  window.addEventListener('resize', resizeTrail)
+
+  document.addEventListener('mousemove', e => {
+    TRAIL.push({ x: e.clientX, y: e.clientY, t: Date.now() })
+    if (TRAIL.length > TRAIL_LEN) TRAIL.shift()
+  })
+
+  const drawTrail = () => {
+    TX.clearRect(0, 0, TC.width, TC.height)
+
+    if (TRAIL.length < 2) {
+      requestAnimationFrame(drawTrail)
+      return
+    }
+
+    const NOW = Date.now()
+
+    for (let i = 1; i < TRAIL.length; i++) {
+      const P = TRAIL[i - 1]
+      const C = TRAIL[i]
+      const AGE = NOW - C.t
+      const T = i / TRAIL_LEN
+      const ALPHA = Math.max(0, (1 - AGE / 300)) * T * 0.7
+      const W = T * 3.5
+
+      TX.beginPath()
+      TX.moveTo(P.x, P.y)
+      TX.lineTo(C.x, C.y)
+      TX.strokeStyle = `rgba(232,255,71,${ALPHA})`
+      TX.lineWidth = W
+      TX.lineCap = 'round'
+      TX.lineJoin = 'round'
+      TX.stroke()
+    }
+
+    // glow dot at trail head
+    if (TRAIL.length > 0) {
+      const HEAD = TRAIL[TRAIL.length - 1]
+      const AGE = NOW - HEAD.t
+      const A = Math.max(0, 1 - AGE / 200) * 0.5
+      const GRAD = TX.createRadialGradient(HEAD.x, HEAD.y, 0, HEAD.x, HEAD.y, 12)
+      GRAD.addColorStop(0, `rgba(232,255,71,${A})`)
+      GRAD.addColorStop(1, 'rgba(232,255,71,0)')
+      TX.beginPath()
+      TX.arc(HEAD.x, HEAD.y, 12, 0, Math.PI * 2)
+      TX.fillStyle = GRAD
+      TX.fill()
+    }
+
+    requestAnimationFrame(drawTrail)
+  }
+  drawTrail()
 
   // RAIN
   const CANVAS = document.getElementById('rain-canvas')
@@ -1015,9 +959,9 @@
     for (const D of DROPS) {
       CTX.beginPath()
       const GRAD = CTX.createLinearGradient(D.x, D.y, D.x - 1, D.y + D.len)
-      GRAD.addColorStop(0, `rgba(255,255,255,0)`)
+      GRAD.addColorStop(0, 'rgba(255,255,255,0)')
       GRAD.addColorStop(0.5, `rgba(255,255,255,${D.opacity})`)
-      GRAD.addColorStop(1, `rgba(255,255,255,0)`)
+      GRAD.addColorStop(1, 'rgba(255,255,255,0)')
       CTX.strokeStyle = GRAD
       CTX.lineWidth = D.width
       CTX.moveTo(D.x, D.y)
@@ -1038,13 +982,12 @@
   drawRain()
   window.addEventListener('resize', () => { resize(); initDrops() })
 
-  // TAB SWITCHING
+  // TABS
   const switchTab = (id, btn) => {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'))
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'))
     document.getElementById('panel-' + id).classList.add('active')
     btn.classList.add('active')
-
     document.querySelectorAll('#panel-' + id + ' .card').forEach((c, i) => {
       c.style.animation = 'none'
       c.offsetHeight
