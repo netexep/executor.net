@@ -105,10 +105,13 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .tab .dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.45;transition:opacity .2s;}
 .tab.active .dot,.tab:hover .dot{opacity:1;}
 /* paid tab */
-.tab.ptab{color:#1a1a32;}
+.tab.ptab{color:#2a2a50;position:relative;}
 .tab.ptab:hover{color:var(--pd-accent2);}
-.tab.ptab.active{color:var(--pd-accent2);border-bottom-color:var(--pd-accent);}
+.tab.ptab.active{color:var(--pd-accent2);border-bottom-color:var(--pd-accent);text-shadow:0 0 12px rgba(153,136,255,.7);}
 .tab.ptab::after{background:rgba(102,85,204,.06);}
+.tab.ptab::before{content:'';position:absolute;inset:-1px 2px;background:transparent;border-radius:2px;box-shadow:none;transition:box-shadow .35s,background .35s;pointer-events:none;z-index:-1;}
+.tab.ptab:hover::before{background:rgba(102,85,204,.04);box-shadow:0 0 14px 2px rgba(102,85,204,.18),inset 0 0 10px rgba(102,85,204,.06);}
+.tab.ptab.active::before{background:rgba(80,55,180,.07);box-shadow:0 0 22px 4px rgba(102,85,204,.28),0 0 8px 1px rgba(153,136,255,.18),inset 0 0 14px rgba(102,85,204,.08);}
 /* special tabs */
 .tab.stab{color:#1a1a2e;}
 .tab.stab:hover{color:#8888cc;}
@@ -222,7 +225,7 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
 <canvas id="trail-c"></canvas>
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
-<audio id="bgm" loop src="stan_intro.mp3"></audio>
+<audio id="bgm" loop crossorigin="anonymous"></audio>
 
 <header>
   <div class="logo">executor<span>.net</span></div>
@@ -623,18 +626,52 @@ const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH
 })()
 
 // ── MUSIC ──
+// stan_intro.mp3 dosyasını HTML ile aynı klasöre koy, otomatik çalar.
+// Alternatif: BGM.src = 'https://your-cdn.com/stan_intro.mp3' satırını değiştir.
 const BGM=document.getElementById('bgm')
+BGM.src='stan_intro.mp3'
 BGM.volume=0.65
 let playing=false
-function tryPlay(){BGM.play().then(()=>{playing=true;document.getElementById('music-btn').classList.remove('paused');document.getElementById('mlabel').textContent='Stan (Intro) — Dido'}).catch(()=>{})}
+
+const MBTN=document.getElementById('music-btn')
+const MLBL=document.getElementById('mlabel')
+
+function tryPlay(){
+  BGM.play().then(()=>{
+    playing=true
+    MBTN.classList.remove('paused')
+    MLBL.textContent='Stan (Intro) — Dido'
+  }).catch(()=>{
+    // autoplay blocked — wait for interaction
+    playing=false
+    MBTN.classList.add('paused')
+    MLBL.textContent='Click to play'
+  })
+}
+
+BGM.addEventListener('error',()=>{
+  MLBL.textContent='stan_intro.mp3 not found'
+  MBTN.classList.add('paused')
+})
+
+// try autoplay
 tryPlay()
-const onFirst=()=>{if(!playing){tryPlay()}document.removeEventListener('click',onFirst);document.removeEventListener('keydown',onFirst)}
-document.addEventListener('click',onFirst);document.addEventListener('keydown',onFirst)
-document.getElementById('music-btn').addEventListener('click',()=>{
+
+// first interaction fallback
+const onFirst=()=>{
+  if(!playing&&BGM.src&&BGM.readyState>=1)tryPlay()
+  document.removeEventListener('click',onFirst)
+  document.removeEventListener('keydown',onFirst)
+}
+document.addEventListener('click',onFirst)
+document.addEventListener('keydown',onFirst)
+
+MBTN.addEventListener('click',e=>{
+  e.stopPropagation()
+  if(BGM.error){MLBL.textContent='stan_intro.mp3 not found';return}
   playing=!playing
-  const btn=document.getElementById('music-btn'),lbl=document.getElementById('mlabel')
-  if(playing){btn.classList.remove('paused');lbl.textContent='Stan (Intro) — Dido';BGM.play()}
-  else{btn.classList.add('paused');lbl.textContent='Click to play';BGM.pause()}
+  if(playing){MBTN.classList.remove('paused');MLBL.textContent='Stan (Intro) — Dido';BGM.play()}
+  else{MBTN.classList.add('paused');MLBL.textContent='Click to play';BGM.pause()}
 })
 </script>
 </body>
