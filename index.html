@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TSB Hub – The Strongest Battlegrounds Script</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#020208;--s1:#07070f;--s2:#0c0c18;--s3:#11111f;
+  --bd:rgba(255,255,255,0.055);--bd2:rgba(255,255,255,0.1);
+  --r:#ff1a3e;--r2:#ff4d6a;--o:#ff6b2b;--o2:#ffaa55;
+  --disc:#5865F2;--txt:#f2f0ff;--m:#666;--m2:#3a3a4a;
+  --F:'Outfit',sans-serif;--FB:'Bebas Neue',cursive;--FM:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--txt);font-family:var(--F);overflow-x:hidden;cursor:none;line-height:1.6}
+
+/* CURSOR */
+#cx{position:fixed;width:10px;height:10px;background:var(--r);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .12s,height .12s,background .15s;box-shadow:0 0 16px var(--r),0 0 32px rgba(255,26,62,.25)}
+#cr{position:fixed;width:42px;height:42px;border:1.5px solid rgba(255,26,62,.38);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width .28s cubic-bezier(.23,1,.32,1),height .28s cubic-bezier(.23,1,.32,1),border-color .25s}
+body:has(a:hover) #cx,body:has(button:hover) #cx{width:16px;height:16px;background:#fff;box-shadow:0 0 20px rgba(255,255,255,.5)}
+body:has(a:hover) #cr,body:has(button:hover) #cr{width:62px;height:62px;border-color:rgba(255,26,62,.9)}
+#tc{position:fixed;inset:0;pointer-events:none;z-index:99997}
+#pc{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+/* NOISE OVERLAY */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9990;opacity:.5}
+
+/* ANNOUNCEMENT */
+#ann{display:none;position:fixed;top:0;left:0;right:0;z-index:9500;animation:sD .4s ease both}
+#ann.on{display:flex}
+@keyframes sD{from{transform:translateY(-100%);opacity:0}to{transform:none;opacity:1}}
+.ann-w{display:flex;align-items:center;gap:14px;padding:11px 32px;width:100%;background:linear-gradient(90deg,rgba(20,2,8,.98),rgba(30,4,12,.98),rgba(20,2,8,.98));border-bottom:1px solid rgba(255,26,62,.35);backdrop-filter:blur(20px)}
+.ann-pulse{width:8px;height:8px;border-radius:50%;background:var(--r);box-shadow:0 0 12px var(--r);animation:pd 1.4s ease infinite;flex-shrink:0}
+@keyframes pd{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.8)}}
+.ann-msg{flex:1;font-size:.8rem;font-weight:600;color:#ffd0d8;letter-spacing:.02em}
+.ann-t{font-family:var(--FM);font-size:.68rem;color:var(--m);background:rgba(0,0,0,.4);padding:3px 11px;border-radius:100px;border:1px solid var(--bd);flex-shrink:0}
+.ann-x{width:26px;height:26px;background:none;border:none;color:var(--m);cursor:none;font-size:1rem;flex-shrink:0;border-radius:5px;transition:color .2s,background .2s;display:flex;align-items:center;justify-content:center}
+.ann-x:hover{color:var(--txt);background:rgba(255,255,255,.07)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:8000;padding:20px 56px;display:flex;align-items:center;justify-content:space-between;transition:all .4s}
+nav.scrolled{background:rgba(2,2,8,.9);border-bottom:1px solid var(--bd);backdrop-filter:blur(28px)}
+.nl{font-family:var(--FB);font-size:1.55rem;letter-spacing:.12em;background:linear-gradient(90deg,#fff 30%,var(--r2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nlinks{display:flex;gap:38px;list-style:none}
+.nlinks a{text-decoration:none;font-size:.75rem;font-weight:700;color:var(--m);letter-spacing:.14em;text-transform:uppercase;transition:color .25s;position:relative;padding-bottom:4px}
+.nlinks a::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--r),var(--o));transform:scaleX(0);transition:transform .3s cubic-bezier(.23,1,.32,1);transform-origin:left}
+.nlinks a:hover{color:var(--txt)}.nlinks a:hover::after{transform:scaleX(1)}
+
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:9rem 2rem 6rem;overflow:hidden;z-index:2}
+.h-amb{position:absolute;inset:0;background:radial-gradient(ellipse 100% 65% at 50% -15%,rgba(255,26,62,.2) 0%,transparent 65%),radial-gradient(ellipse 55% 55% at 92% 82%,rgba(255,107,43,.09) 0%,transparent 58%),radial-gradient(ellipse 60% 50% at 3% 55%,rgba(255,26,62,.05) 0%,transparent 60%);pointer-events:none}
+.h-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,26,62,.042) 1px,transparent 1px),linear-gradient(90deg,rgba(255,26,62,.042) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 90% 72% at 50% 0%,black 15%,transparent 80%);pointer-events:none}
+.h-diag{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:.6}
+.h-diag::before{content:'';position:absolute;width:200%;height:200%;top:-50%;left:-50%;background:repeating-linear-gradient(55deg,transparent,transparent 90px,rgba(255,26,62,.012) 90px,rgba(255,26,62,.012) 91px);animation:dD 30s linear infinite}
+@keyframes dD{from{transform:translate(0,0)}to{transform:translate(91px,91px)}}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);pointer-events:none;animation:ob 9s ease-in-out infinite}
+.o1{width:520px;height:520px;background:rgba(255,26,62,.07);top:-130px;left:12%;animation-delay:0s}
+.o2{width:380px;height:380px;background:rgba(255,107,43,.055);bottom:0;right:8%;animation-delay:-3.5s}
+.o3{width:280px;height:280px;background:rgba(88,101,242,.04);top:30%;left:-10%;animation-delay:-6s}
+@keyframes ob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-32px) scale(1.05)}}
+.h-bgtxt{position:absolute;font-family:var(--FB);font-size:clamp(100px,18vw,260px);color:rgba(255,26,62,.022);letter-spacing:.05em;pointer-events:none;user-select:none;top:50%;left:50%;transform:translate(-50%,-50%);white-space:nowrap;animation:bgP 7s ease-in-out infinite}
+@keyframes bgP{0%,100%{opacity:1}50%{opacity:.35}}
+
+.badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,26,62,.1);border:1px solid rgba(255,26,62,.28);border-radius:100px;padding:7px 22px;font-size:.67rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--r2);margin-bottom:2rem;animation:fU .6s ease both;position:relative;overflow:hidden}
+.badge::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);animation:shine 3.5s ease-in-out infinite}
+@keyframes shine{0%{transform:translateX(-120%)}60%,100%{transform:translateX(120%)}}
+.h-eye{font-size:.73rem;letter-spacing:.32em;text-transform:uppercase;color:rgba(255,100,130,.6);margin-bottom:1rem;font-weight:700;animation:fU .7s .08s ease both}
+.hero h1{font-family:var(--FB);font-size:clamp(4.5rem,14vw,11rem);letter-spacing:.05em;line-height:.88;margin-bottom:2rem;animation:fU .7s .18s ease both}
+.hero h1 .l1{display:block;color:#fff}
+.hero h1 .l2{display:block;background:linear-gradient(115deg,var(--r) 10%,var(--o) 50%,var(--o2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 55px rgba(255,26,62,.55))}
+.h-desc{font-size:1rem;color:rgba(242,240,255,.5);max-width:460px;margin:0 auto 2.8rem;line-height:1.8;animation:fU .7s .28s ease both}
+.h-cta{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;animation:fU .7s .4s ease both}
+@keyframes fU{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:15px 34px;border-radius:14px;font-family:var(--F);font-weight:700;font-size:.9rem;letter-spacing:.04em;text-decoration:none;border:none;cursor:none;transition:transform .25s cubic-bezier(.23,1,.32,1),box-shadow .25s;position:relative;overflow:hidden}
+.btn::before{content:'';position:absolute;inset:0;background:rgba(255,255,255,.08);opacity:0;transition:opacity .2s}
+.btn:hover::before{opacity:1}
+.btn:hover{transform:translateY(-4px)}
+.btn-p{background:linear-gradient(135deg,var(--r),var(--o));color:#fff;box-shadow:0 6px 30px rgba(255,26,62,.5),inset 0 1px 0 rgba(255,255,255,.12)}
+.btn-p:hover{box-shadow:0 14px 50px rgba(255,26,62,.68),inset 0 1px 0 rgba(255,255,255,.12)}
+.btn-g{background:rgba(255,255,255,.04);color:var(--txt);border:1px solid var(--bd2)}
+.btn-g:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.2)}
+.btn-d{background:var(--disc);color:#fff;box-shadow:0 6px 30px rgba(88,101,242,.45)}
+.btn-d:hover{background:#6875f5;box-shadow:0 14px 50px rgba(88,101,242,.65)}
+
+.sh{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--m2);font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;animation:fU 1s .9s ease both}
+.sl2{width:1px;height:50px;background:linear-gradient(to bottom,var(--r),transparent);animation:sA 2s ease infinite}
+@keyframes sA{0%,100%{opacity:1;transform:scaleY(1);transform-origin:top}50%{opacity:.15;transform:scaleY(.35);transform-origin:top}}
+
+/* CONTAINERS */
+.container{max-width:1100px;margin:0 auto}
+.sec{padding:7rem 2rem;position:relative}
+.sl{font-size:.65rem;font-weight:700;letter-spacing:.3em;text-transform:uppercase;color:var(--r2);margin-bottom:.7rem;display:flex;align-items:center;gap:10px}
+.sl::before{content:'';width:22px;height:1px;background:var(--r)}
+.st{font-family:var(--FB);font-size:clamp(2.4rem,5vw,4rem);letter-spacing:.04em;margin-bottom:.8rem;line-height:1}
+.sd{color:var(--m);font-size:.93rem;max-width:490px;line-height:1.8}
+.divl{height:1px;background:linear-gradient(90deg,transparent,var(--bd2),transparent)}
+
+/* FEATURES */
+.feat-s{background:var(--s1);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.feat-s::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--r),var(--o),transparent)}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:1.5rem;margin-top:3.5rem}
+.fc{background:var(--s2);border:1px solid var(--bd);border-radius:20px;padding:2.2rem;position:relative;overflow:hidden;transition:border-color .35s,transform .35s,box-shadow .35s}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--r),transparent);opacity:0;transition:opacity .35s}
+.fc::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% -20%,rgba(255,26,62,.07),transparent 65%);opacity:0;transition:opacity .35s}
+.fc:hover{border-color:rgba(255,26,62,.25);transform:translateY(-7px);box-shadow:0 22px 65px rgba(255,26,62,.1)}
+.fc:hover::before,.fc:hover::after{opacity:1}
+.fi{width:50px;height:50px;background:linear-gradient(135deg,rgba(255,26,62,.14),rgba(255,107,43,.07));border:1px solid rgba(255,26,62,.18);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:1.3rem;position:relative;z-index:1}
+.ft{font-size:1.02rem;font-weight:800;margin-bottom:.5rem;position:relative;z-index:1}
+.fd{color:var(--m);font-size:.83rem;line-height:1.72;position:relative;z-index:1}
+
+/* LOADER */
+.lbox{background:var(--s1);border:1px solid var(--bd);border-radius:22px;overflow:hidden;margin-top:2.8rem;position:relative;box-shadow:0 0 100px rgba(255,26,62,.05)}
+.lbox::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--r),var(--o),var(--r2),transparent)}
+.ltop{background:var(--s2);padding:15px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd)}
+.ldots{display:flex;gap:7px}
+.ldots span{width:13px;height:13px;border-radius:50%}
+.ldots span:nth-child(1){background:#ff5f57}
+.ldots span:nth-child(2){background:#febc2e}
+.ldots span:nth-child(3){background:#28c840}
+.lname{font-family:var(--FM);font-size:.72rem;color:var(--m)}
+.cbtn{display:inline-flex;align-items:center;gap:8px;background:rgba(255,26,62,.1);border:1px solid rgba(255,26,62,.22);border-radius:9px;padding:8px 18px;color:var(--r2);font-family:var(--F);font-weight:700;font-size:.75rem;cursor:none;transition:all .2s;letter-spacing:.04em}
+.cbtn:hover{background:rgba(255,26,62,.2);border-color:rgba(255,26,62,.45)}
+.cbtn.ok{background:rgba(40,200,100,.12);border-color:rgba(40,200,100,.35);color:#4dde8f}
+.ca{padding:2.4rem 2.8rem;font-family:var(--FM);font-size:.88rem;line-height:2;overflow-x:auto}
+.kw{color:#ff7eb6}.fn{color:#79c0ff}.str{color:#a5d6ff}.pu{color:#4a4a6a}
+.lfoot{background:var(--s2);border-top:1px solid var(--bd);padding:13px 26px;display:flex;align-items:center;gap:10px}
+.sdot{width:8px;height:8px;border-radius:50%;background:#28c840;box-shadow:0 0 8px #28c840;animation:pd 2s ease infinite}
+.lfoot span{font-family:var(--FM);font-size:.68rem;color:var(--m)}
+
+/* DISCORD */
+.dcard{background:linear-gradient(140deg,#080818,#0e0e28,#050512);border:1px solid rgba(88,101,242,.2);border-radius:28px;padding:4rem 4.5rem;display:flex;align-items:center;justify-content:space-between;gap:3rem;position:relative;overflow:hidden;box-shadow:0 0 120px rgba(88,101,242,.07)}
+.dcard::before{content:'';position:absolute;top:-25%;right:0%;width:550px;height:550px;border-radius:50%;background:radial-gradient(circle,rgba(88,101,242,.09),transparent 70%);pointer-events:none}
+.dcard::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(88,101,242,.5),transparent)}
+.dl h2{font-family:var(--FB);font-size:clamp(2.2rem,4.5vw,3.2rem);letter-spacing:.04em;margin-bottom:.7rem}
+.dl p{color:#9aa0cc;font-size:.93rem;line-height:1.75;max-width:420px}
+.dstats{display:flex;gap:3rem;margin-top:2.2rem}
+.ds strong{display:block;font-size:1.6rem;font-weight:800;color:#fff}
+.ds span{font-size:.64rem;color:#4a5080;text-transform:uppercase;letter-spacing:.14em}
+
+/* TEAM */
+.team-s{background:var(--s1);border-top:1px solid var(--bd)}
+.th{text-align:center;margin-bottom:4.5rem}
+.th .sl{justify-content:center}
+.th .sd{margin:0 auto}
+.tg{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:2rem;max-width:870px;margin:0 auto}
+.tc{background:var(--s2);border:1px solid var(--bd);border-radius:26px;padding:3rem 2rem;text-align:center;position:relative;overflow:hidden;transition:all .4s}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--r),var(--o),transparent);opacity:0;transition:opacity .4s}
+.tc::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% -10%,rgba(255,26,62,.06),transparent 60%);opacity:0;transition:opacity .4s}
+.tc:hover{border-color:rgba(255,26,62,.22);transform:translateY(-9px);box-shadow:0 30px 85px rgba(255,26,62,.1)}
+.tc:hover::before,.tc:hover::after{opacity:1}
+.aw{width:104px;height:104px;border-radius:50%;margin:0 auto 1.6rem;position:relative}
+.aw::before{content:'';position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(var(--r),var(--o),var(--r2),var(--r));z-index:0;animation:rB 4s linear infinite}
+@keyframes rB{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.aw img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--s2);position:relative;z-index:1}
+.tn{font-size:1.2rem;font-weight:800;margin-bottom:.5rem}
+.tr{display:inline-block;background:rgba(255,26,62,.1);border:1px solid rgba(255,26,62,.2);border-radius:100px;padding:3px 16px;font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--r2);margin-bottom:.9rem}
+.td{color:var(--m);font-size:.84rem;line-height:1.65;position:relative;z-index:1}
+
+/* FOOTER */
+footer{text-align:center;padding:2.5rem;border-top:1px solid var(--bd);color:var(--m2);font-size:.75rem;letter-spacing:.05em}
+footer a{color:var(--r2);text-decoration:none;transition:color .2s}
+footer a:hover{color:#fff}
+
+/* REVEAL */
+.rev{opacity:0;transform:translateY(30px);transition:opacity .75s ease,transform .75s ease}
+.rev.on{opacity:1;transform:none}
+
+@media(max-width:768px){
+  nav{padding:14px 20px}
+  .nlinks{display:none}
+  .dcard{flex-direction:column;text-align:center;padding:2.5rem 1.8rem}
+  .dl p{max-width:100%}
+  .dstats{justify-content:center}
+  .ca{padding:1.4rem;font-size:.75rem}
+}
+</style>
+</head>
+<body>
+
+<canvas id="tc"></canvas>
+<div id="cx"></div>
+<div id="cr"></div>
+<canvas id="pc"></canvas>
+
+<!-- ANNOUNCEMENT -->
+<div id="ann">
+  <div class="ann-w">
+    <div class="ann-pulse"></div>
+    <div class="ann-msg" id="ann-txt">Announcement</div>
+    <div class="ann-t" id="ann-timer">--:--</div>
+    <button class="ann-x" onclick="closeAnn()">✕</button>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nl">TSB HUB</div>
+  <ul class="nlinks">
+    <li><a href="#loader">Script</a></li>
+    <li><a href="#disc">Discord</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+  <div></div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="h-amb"></div>
+  <div class="h-grid"></div>
+  <div class="h-diag"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="h-bgtxt">TSB</div>
+  <div class="badge"><div class="ann-pulse"></div>Free Script Hub</div>
+  <p class="h-eye">The Strongest Battlegrounds</p>
+  <h1>
+    <span class="l1">Best Free</span>
+    <span class="l2">TSB Script</span>
+  </h1>
+  <p class="h-desc">Powerful, always updated, completely free. Dominate every match with the most capable TSB script hub.</p>
+  <div class="h-cta">
+    <a href="#loader" class="btn btn-p">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      Get Script
+    </a>
+    <a href="#disc" class="btn btn-g">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+      Join Discord
+    </a>
+  </div>
+  <div class="sh"><div class="sl2"></div>scroll</div>
+</section>
+
+<div class="divl"></div>
+
+<!-- INFO -->
+<section class="feat-s sec">
+  <div class="container">
+    <div class="rev">
+      <p class="sl">Info</p>
+      <h2 class="st">Info</h2>
+      <p class="sd">Everything you need to know about the hub before you use it.</p>
+    </div>
+    <div class="fg">
+      <div class="fc rev" style="transition-delay:.05s">
+        <div class="fi">🎮</div>
+        <div class="ft">All Executors Supported</div>
+        <p class="fd">Works with every major executor — Synapse X, KRNL, Fluxus, Delta, Codex, Arceus X, Wave and more. Just paste and run, no extra setup needed.</p>
+      </div>
+      <div class="fc rev" style="transition-delay:.12s">
+        <div class="fi">📱</div>
+        <div class="ft">Mobile & PC Support</div>
+        <p class="fd">Fully compatible on both mobile and PC. Whether you're on Android with a mobile executor or on desktop, the hub runs perfectly on both platforms.</p>
+      </div>
+      <div class="fc rev" style="transition-delay:.19s">
+        <div class="fi">💸</div>
+        <div class="ft">Completely Free</div>
+        <p class="fd">No keys, no paywalls, no premium tiers. The entire hub and all its features are 100% free forever. No strings attached.</p>
+      </div>
+      <div class="fc rev" style="transition-delay:.26s">
+        <div class="fi">✅</div>
+        <div class="ft">Legit & Safe</div>
+        <p class="fd">Clean, safe script with no malicious code. Community trusted and transparent. You can inspect every line yourself before running it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divl"></div>
+
+<!-- LOADER -->
+<section class="sec" id="loader">
+  <div class="container">
+    <div class="rev">
+      <p class="sl">Script Loader</p>
+      <h2 class="st">Main Loader</h2>
+      <p class="sd">Copy the script below, paste into your executor, and execute. Works with all major executors.</p>
+    </div>
+    <div class="lbox rev" style="transition-delay:.15s">
+      <div class="ltop">
+        <div class="ldots"><span></span><span></span><span></span></div>
+        <span class="lname">oxyshub_tsb.lua</span>
+        <button class="cbtn" id="cbtn" onclick="copyScript()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span id="ctxt">Copy Script</span>
+        </button>
+      </div>
+      <div class="ca">
+        <span class="fn">loadstring</span><span class="pu">(</span><span class="fn">game</span><span class="pu">:</span><span class="fn">HttpGet</span><span class="pu">(</span><span class="str" id="sdisplay">"https://raw.githubusercontent.com/oxydaoxy/oxyshub-tsb/refs/heads/main/oxys%20hub%20tsb"</span><span class="pu">))()</span>
+      </div>
+      <div class="lfoot">
+        <div class="sdot"></div>
+        <span>Script active · Free forever · <span id="supd">Last updated recently</span> · <span id="sverel">v1.4</span></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divl"></div>
+
+<!-- DISCORD -->
+<section class="sec" id="disc">
+  <div class="container">
+    <div class="dcard rev">
+      <div class="dl">
+        <h2>Join Our Discord</h2>
+        <p>Get the latest script updates, community support, and exclusive announcements. Real-time notifications whenever a new version drops.</p>
+        <div class="dstats">
+          <div class="ds"><strong>Free</strong><span>Always</span></div>
+          <div class="ds"><strong>24/7</strong><span>Support</span></div>
+          <div class="ds"><strong>Fast</strong><span>Updates</span></div>
+        </div>
+      </div>
+      <a href="https://discord.gg/A3ZJGfMUFP" target="_blank" rel="noopener" class="btn btn-d" id="dlink">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Join Discord
+      </a>
+    </div>
+  </div>
+</section>
+
+<div class="divl"></div>
+
+<!-- TEAM -->
+<section class="team-s sec" id="team">
+  <div class="container">
+    <div class="th rev">
+      <p class="sl">Credits</p>
+      <h2 class="st">The Creators & Helpers</h2>
+      <p class="sd">The people behind the script who make it all possible.</p>
+    </div>
+    <div class="tg">
+      <div class="tc rev">
+        <div class="aw"><img src="https://images-ext-1.discordapp.net/external/rwm0VsE-RlSRfkJJ2MnpY2hHmMbBpho_2-3eTSZsmGk/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1463312268409307166/05ba694840216029b5efdddfb403cd8d.png?format=webp&quality=lossless&width=662&height=662" alt="oxyrias" onerror="this.src='https://ui-avatars.com/api/?name=oxyrias&background=ff1a3e&color=fff&size=104&bold=true'"></div>
+        <div class="tn">oxyrias</div><div class="tr">Creator</div>
+        <p class="td">The Creator of the Script. Built and maintains the entire TSB hub from the ground up.</p>
+      </div>
+      <div class="tc rev" style="transition-delay:.12s">
+        <div class="aw"><img src="https://images-ext-1.discordapp.net/external/2I-6JxutC7pGbu3kvhfrXqv33RmStUma_vv4LAsbqSg/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1285373719073783889/7212306ea94b35bb8f2f4d5ea5d6b6ab.png?format=webp&quality=lossless&width=230&height=230" alt="virtual01" onerror="this.src='https://ui-avatars.com/api/?name=virtual01&background=ff6b2b&color=fff&size=104&bold=true'"></div>
+        <div class="tn">virtual01</div><div class="tr">Helper</div>
+        <p class="td">Helper of the Server. Provides support and assists the community with questions.</p>
+      </div>
+      <div class="tc rev" style="transition-delay:.24s">
+        <div class="aw"><img src="https://images-ext-1.discordapp.net/external/IxbI2MDfMNW92Z6JJ5Tv0ar5TP1uRDn9lZfre4lWYEA/%3Fsize%3D1024/https/cdn.discordapp.com/avatars/1257224567320215554/f03e0bc099c467f18bbe40f11b4d4d46.png?format=webp&quality=lossless&width=256&height=256" alt="HzShawde" onerror="this.src='https://ui-avatars.com/api/?name=HzShawde&background=ff1a3e&color=fff&size=104&bold=true'"></div>
+        <div class="tn">HzShawde</div><div class="tr">Web Maker</div>
+        <p class="td">The person who created this website.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 TSB Script Hub by <a href="https://discord.gg/A3ZJGfMUFP" target="_blank">oxyrias</a> · Free forever · <a href="https://discord.gg/A3ZJGfMUFP" target="_blank">Discord</a></p>
+</footer>
+
+<script>
+const SCRIPT_URL="https://raw.githubusercontent.com/oxydaoxy/oxyshub-tsb/refs/heads/main/oxys%20hub%20tsb"
+
+function copyScript(){
+  navigator.clipboard.writeText(`loadstring(game:HttpGet("${SCRIPT_URL}"))()`)
+  const btn=document.getElementById("cbtn"),txt=document.getElementById("ctxt")
+  btn.classList.add("ok");txt.textContent="Copied!"
+  setTimeout(()=>{btn.classList.remove("ok");txt.textContent="Copy Script"},2200)
+}
+
+let annIv=null
+function closeAnn(){
+  document.getElementById("ann").classList.remove("on")
+  document.getElementById("nav").style.top="0"
+  if(annIv){clearInterval(annIv);annIv=null}
+}
+
+// REVEAL
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("on");obs.unobserve(e.target)}})
+},{threshold:.1})
+document.querySelectorAll(".rev").forEach(el=>obs.observe(el))
+
+window.addEventListener("scroll",()=>document.getElementById("nav").classList.toggle("scrolled",scrollY>50))
+
+// CURSOR
+const CX=document.getElementById("cx"),CR=document.getElementById("cr")
+let mx=0,my=0,rx=0,ry=0
+document.addEventListener("mousemove",e=>{mx=e.clientX;my=e.clientY;CX.style.left=mx+"px";CX.style.top=my+"px"})
+;(function rloop(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;CR.style.left=rx+"px";CR.style.top=ry+"px";requestAnimationFrame(rloop)})()
+
+// TRAIL
+const TC=document.getElementById("tc"),TCTX=TC.getContext("2d")
+let W,H,PTS=[],MXPTS=34
+const rsz=()=>{W=TC.width=window.innerWidth;H=TC.height=window.innerHeight}
+rsz();window.addEventListener("resize",rsz)
+document.addEventListener("mousemove",e=>{PTS.push({x:e.clientX,y:e.clientY,life:1});if(PTS.length>MXPTS)PTS.shift()})
+;(function tloop(){
+  TCTX.clearRect(0,0,W,H)
+  for(let i=1;i<PTS.length;i++){
+    const p=PTS[i],pp=PTS[i-1],t=i/PTS.length,a=t*0.5,s=t*4.5
+    TCTX.beginPath();TCTX.moveTo(pp.x,pp.y);TCTX.lineTo(p.x,p.y)
+    TCTX.strokeStyle=`rgba(255,${Math.floor(30+t*100)},${Math.floor(62+t*40)},${a})`
+    TCTX.lineWidth=s;TCTX.lineCap="round";TCTX.stroke()
+    if(t>.65){TCTX.beginPath();TCTX.arc(p.x,p.y,s*2,0,Math.PI*2);TCTX.fillStyle=`rgba(255,26,62,${a*.22})`;TCTX.fill()}
+  }
+  for(let i=PTS.length-1;i>=0;i--){PTS[i].life-=.033;if(PTS[i].life<=0)PTS.splice(i,1)}
+  requestAnimationFrame(tloop)
+})()
+
+// PARTICLES
+const PC=document.getElementById("pc"),PCTX=PC.getContext("2d")
+let PW,PH
+const prsz=()=>{PW=PC.width=window.innerWidth;PH=PC.height=window.innerHeight}
+prsz();window.addEventListener("resize",prsz)
+const PARTS=Array.from({length:60},()=>({
+  x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,
+  r:Math.random()*1.4+.3,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,
+  o:Math.random()*.38+.08,c:Math.random()<.7?"rgba(255,26,62,":"rgba(255,107,43,"
+}))
+;(function ploop(){
+  PCTX.clearRect(0,0,PW,PH)
+  for(const p of PARTS){
+    p.x+=p.vx;p.y+=p.vy
+    if(p.x<0)p.x=PW;if(p.x>PW)p.x=0;if(p.y<0)p.y=PH;if(p.y>PH)p.y=0
+    PCTX.beginPath();PCTX.arc(p.x,p.y,p.r,0,Math.PI*2)
+    PCTX.fillStyle=p.c+p.o+")";PCTX.fill()
+  }
+  requestAnimationFrame(ploop)
+})()
+</script>
+</body>
+</html>
