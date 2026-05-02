@@ -92,6 +92,28 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .hero h1 .l2{background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hero p{color:var(--muted);font-size:11px;letter-spacing:3px;text-transform:uppercase;animation:hIn .8s .5s both;}
 @keyframes hIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+/* hero credit */
+.hero-credit{display:inline-flex;align-items:center;gap:12px;margin-top:28px;cursor:none;padding:10px 20px;border:1px solid rgba(102,85,204,.2);background:rgba(60,35,140,.06);transition:all .3s;animation:hIn .8s .7s both;position:relative;overflow:hidden;}
+.hero-credit::before{content:'';position:absolute;inset:0;background:rgba(102,85,204,.05);transform:translateX(-100%);transition:transform .4s;}
+.hero-credit:hover::before{transform:translateX(0);}
+.hero-credit:hover{border-color:rgba(102,85,204,.45);box-shadow:0 0 22px rgba(102,85,204,.18);}
+.hero-credit-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(102,85,204,.35));width:40px;}
+.hero-credit-text{font-size:10px;letter-spacing:2px;color:#4a3a88;text-transform:uppercase;}
+.hero-credit-text strong{color:#8877dd;font-weight:500;}
+.hero-credit-hl{color:var(--pd-accent2);font-weight:700;letter-spacing:3px;text-shadow:0 0 14px rgba(153,136,255,.6);animation:pulse-glow 2s ease-in-out infinite;}
+.hero-credit-arrow{font-size:14px;color:var(--pd-accent2);transition:transform .2s;}
+.hero-credit:hover .hero-credit-arrow{transform:translate(2px,-2px);}
+@keyframes pulse-glow{0%,100%{text-shadow:0 0 14px rgba(153,136,255,.6)}50%{text-shadow:0 0 22px rgba(153,136,255,.95),0 0 40px rgba(102,85,204,.4)}}
+/* about us tab highlight */
+.tab.stab{color:#5544aa;position:relative;}
+.tab.stab:hover{color:#aa99ff;}
+.tab.stab.active{color:#cc99ff;border-bottom-color:#9966ee;text-shadow:0 0 14px rgba(200,150,255,.85);}
+.tab.stab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;
+  background:rgba(80,40,160,.1);
+  box-shadow:0 0 12px 3px rgba(150,80,255,.2),inset 0 0 8px rgba(120,60,220,.08);
+  transition:box-shadow .35s,background .35s;}
+.tab.stab:hover::before{background:rgba(100,50,200,.14);box-shadow:0 0 20px 5px rgba(150,80,255,.3),inset 0 0 12px rgba(120,60,220,.12);}
+.tab.stab.active::before{background:rgba(100,50,200,.16);box-shadow:0 0 28px 7px rgba(170,100,255,.38),0 0 12px 3px rgba(200,150,255,.2),inset 0 0 16px rgba(120,60,220,.14);}
 
 /* ── TABS ── */
 .tabs-wrap{position:relative;z-index:3;padding:0 44px;margin-bottom:44px;animation:hIn .8s .6s both;}
@@ -105,17 +127,17 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .tab .dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.45;transition:opacity .2s;}
 .tab.active .dot,.tab:hover .dot{opacity:1;}
 /* paid tab */
-.tab.ptab{color:#2a2a50;position:relative;}
+.tab.ptab{color:#6655cc;position:relative;}
 .tab.ptab:hover{color:var(--pd-accent2);}
-.tab.ptab.active{color:var(--pd-accent2);border-bottom-color:var(--pd-accent);text-shadow:0 0 12px rgba(153,136,255,.7);}
+.tab.ptab.active{color:var(--pd-accent2);border-bottom-color:var(--pd-accent);text-shadow:0 0 14px rgba(153,136,255,.85);}
 .tab.ptab::after{background:rgba(102,85,204,.06);}
-.tab.ptab::before{content:'';position:absolute;inset:-1px 2px;background:transparent;border-radius:2px;box-shadow:none;transition:box-shadow .35s,background .35s;pointer-events:none;z-index:-1;}
-.tab.ptab:hover::before{background:rgba(102,85,204,.04);box-shadow:0 0 14px 2px rgba(102,85,204,.18),inset 0 0 10px rgba(102,85,204,.06);}
-.tab.ptab.active::before{background:rgba(80,55,180,.07);box-shadow:0 0 22px 4px rgba(102,85,204,.28),0 0 8px 1px rgba(153,136,255,.18),inset 0 0 14px rgba(102,85,204,.08);}
-/* special tabs */
-.tab.stab{color:#1a1a2e;}
-.tab.stab:hover{color:#8888cc;}
-.tab.stab.active{color:#a0a0e0;border-bottom-color:#6666aa;}
+.tab.ptab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;
+  background:rgba(60,35,140,.08);
+  box-shadow:0 0 10px 2px rgba(102,85,204,.22),inset 0 0 8px rgba(102,85,204,.06);
+  transition:box-shadow .35s,background .35s;}
+.tab.ptab:hover::before{background:rgba(80,50,180,.12);box-shadow:0 0 18px 4px rgba(102,85,204,.32),inset 0 0 12px rgba(102,85,204,.1);}
+.tab.ptab.active::before{background:rgba(80,55,180,.14);box-shadow:0 0 26px 6px rgba(102,85,204,.38),0 0 10px 2px rgba(153,136,255,.22),inset 0 0 16px rgba(102,85,204,.12);}
+/* special tabs — about us (mor glow) — tanım yukarıda */
 /* warn tab */
 .tab.wtab{color:#3d1f1f;}
 .tab.wtab:hover{color:#ff8866;}
@@ -225,7 +247,7 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
 <canvas id="trail-c"></canvas>
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
-<audio id="bgm" loop crossorigin="anonymous"></audio>
+
 
 <header>
   <div class="logo">executor<span>.net</span></div>
@@ -237,7 +259,7 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
   <div class="hdr-right">
     <button id="music-btn">
       <div class="mbars"><div class="mb"></div><div class="mb"></div><div class="mb"></div><div class="mb"></div><div class="mb"></div></div>
-      <span id="mlabel">Stan (Intro) — Dido</span>
+      <span id="mlabel">Click to play</span>
     </button>
     <div class="badge">FREE</div>
   </div>
@@ -248,6 +270,12 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
   <div class="glow-line"></div>
   <h1>ROBLOX<br><span class="l2">EXECUTORS</span></h1>
   <p>Windows &bull; Android &bull; iOS &bull; External &bull; macOS</p>
+  <div class="hero-credit" onclick="swAbout()">
+    <span class="hero-credit-line"></span>
+    <span class="hero-credit-text">made by <strong>oxyrias</strong> in discord &mdash; go to <span class="hero-credit-hl">ABOUT US</span></span>
+    <span class="hero-credit-arrow">&#8599;</span>
+    <span class="hero-credit-line"></span>
+  </div>
 </div>
 
 <div class="tabs-wrap">
@@ -500,6 +528,13 @@ function sw(id,btn){
 }
 window.sw=sw
 
+function swAbout(){
+  const btn=document.querySelector('.tab.stab')
+  if(btn)sw('aboutus',btn)
+  window.scrollTo({top:0,behavior:'smooth'})
+}
+window.swAbout=swAbout
+
 // ── SEARCH ──
 const SI=document.getElementById('search-input'),SR=document.getElementById('search-results')
 SI.addEventListener('input',()=>{
@@ -625,53 +660,121 @@ const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH
   requestAnimationFrame(drawR)
 })()
 
-// ── MUSIC ──
-// stan_intro.mp3 dosyasını HTML ile aynı klasöre koy, otomatik çalar.
-// Alternatif: BGM.src = 'https://your-cdn.com/stan_intro.mp3' satırını değiştir.
-const BGM=document.getElementById('bgm')
-BGM.src='stan_intro.mp3'
-BGM.volume=0.65
-let playing=false
-
+// ── MUSIC — Web Audio API ambient synth (no file needed, loops forever) ──
 const MBTN=document.getElementById('music-btn')
 const MLBL=document.getElementById('mlabel')
+let AC=null,playing=false,masterGain=null,reverbNode=null
 
-function tryPlay(){
-  BGM.play().then(()=>{
-    playing=true
-    MBTN.classList.remove('paused')
-    MLBL.textContent='Stan (Intro) — Dido'
-  }).catch(()=>{
-    // autoplay blocked — wait for interaction
-    playing=false
-    MBTN.classList.add('paused')
-    MLBL.textContent='Click to play'
-  })
+function buildAudio(){
+  AC=new(window.AudioContext||window.webkitAudioContext)()
+  masterGain=AC.createGain()
+  masterGain.gain.value=0
+
+  // convolver reverb
+  reverbNode=AC.createConvolver()
+  const rl=AC.sampleRate*3,rb=AC.createBuffer(2,rl,AC.sampleRate)
+  for(let c=0;c<2;c++){const d=rb.getChannelData(c);for(let i=0;i<rl;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/rl,2.5)}
+  reverbNode.buffer=rb
+  const rvg=AC.createGain();rvg.gain.value=0.55
+  reverbNode.connect(rvg);rvg.connect(masterGain)
+  masterGain.connect(AC.destination)
+
+  // chord progression: Am - F - C - G (looping ~16 bars)
+  const NOTES={
+    Am:[220,261.63,329.63],
+    F: [174.61,220,261.63],
+    C: [261.63,329.63,392],
+    G: [196,246.94,293.66]
+  }
+  const PROG=['Am','F','C','G']
+  const BAR=2.4 // seconds per chord
+
+  function pad(freq,start,dur){
+    const o=AC.createOscillator()
+    const g=AC.createGain()
+    o.type='sine'
+    o.frequency.value=freq
+    o.connect(g);g.connect(reverbNode);g.connect(masterGain)
+    const A=0.08,S=0.06
+    g.gain.setValueAtTime(0,start)
+    g.gain.linearRampToValueAtTime(A,start+0.6)
+    g.gain.linearRampToValueAtTime(S,start+1.2)
+    g.gain.setValueAtTime(S,start+dur-0.5)
+    g.gain.linearRampToValueAtTime(0,start+dur)
+    o.start(start);o.stop(start+dur)
+  }
+
+  function playBass(freq,start,dur){
+    const o=AC.createOscillator()
+    const g=AC.createGain()
+    o.type='triangle'
+    o.frequency.value=freq/2
+    o.connect(g);g.connect(masterGain)
+    g.gain.setValueAtTime(0,start)
+    g.gain.linearRampToValueAtTime(0.055,start+0.1)
+    g.gain.linearRampToValueAtTime(0.03,start+dur*0.6)
+    g.gain.linearRampToValueAtTime(0,start+dur)
+    o.start(start);o.stop(start+dur)
+  }
+
+  function scheduleLoop(offset){
+    const loopLen=PROG.length*BAR
+    PROG.forEach((chord,i)=>{
+      const t=offset+i*BAR
+      NOTES[chord].forEach(f=>pad(f,t,BAR+0.3))
+      playBass(NOTES[chord][0],t,BAR)
+    })
+    // schedule next loop slightly before end
+    const nextAt=offset+loopLen-0.2
+    const delay=(nextAt-AC.currentTime)*1000
+    setTimeout(()=>scheduleLoop(offset+loopLen),Math.max(0,delay))
+  }
+
+  scheduleLoop(AC.currentTime+0.1)
+
+  // fade in
+  masterGain.gain.setValueAtTime(0,AC.currentTime)
+  masterGain.gain.linearRampToValueAtTime(0.7,AC.currentTime+2.5)
+  playing=true
+  MBTN.classList.remove('paused')
+  MLBL.textContent='Ambient — executor.net'
 }
 
-BGM.addEventListener('error',()=>{
-  MLBL.textContent='stan_intro.mp3 not found'
-  MBTN.classList.add('paused')
-})
-
-// try autoplay
-tryPlay()
-
-// first interaction fallback
-const onFirst=()=>{
-  if(!playing&&BGM.src&&BGM.readyState>=1)tryPlay()
-  document.removeEventListener('click',onFirst)
-  document.removeEventListener('keydown',onFirst)
+function startMusic(){
+  if(AC)return
+  try{buildAudio()}catch(e){console.warn('Audio failed:',e)}
 }
-document.addEventListener('click',onFirst)
-document.addEventListener('keydown',onFirst)
+
+// autoplay on first any interaction (browsers require gesture)
+const onFirst=e=>{
+  startMusic()
+  document.removeEventListener('click',onFirst,true)
+  document.removeEventListener('keydown',onFirst,true)
+  document.removeEventListener('touchstart',onFirst,true)
+}
+document.addEventListener('click',onFirst,true)
+document.addEventListener('keydown',onFirst,true)
+document.addEventListener('touchstart',onFirst,true)
+
+// also try immediately (works in some browsers)
+setTimeout(()=>{
+  if(!AC){try{const t=new(window.AudioContext||window.webkitAudioContext)();if(t.state==='running'){AC=null;buildAudio()}else t.close()}catch(e){}}
+},100)
 
 MBTN.addEventListener('click',e=>{
   e.stopPropagation()
-  if(BGM.error){MLBL.textContent='stan_intro.mp3 not found';return}
+  if(!AC){startMusic();return}
   playing=!playing
-  if(playing){MBTN.classList.remove('paused');MLBL.textContent='Stan (Intro) — Dido';BGM.play()}
-  else{MBTN.classList.add('paused');MLBL.textContent='Click to play';BGM.pause()}
+  if(playing){
+    masterGain.gain.cancelScheduledValues(AC.currentTime)
+    masterGain.gain.linearRampToValueAtTime(0.7,AC.currentTime+0.8)
+    MBTN.classList.remove('paused');MLBL.textContent='Ambient — executor.net'
+    if(AC.state==='suspended')AC.resume()
+  }else{
+    masterGain.gain.cancelScheduledValues(AC.currentTime)
+    masterGain.gain.linearRampToValueAtTime(0,AC.currentTime+0.8)
+    MBTN.classList.add('paused');MLBL.textContent='Click to play'
+  }
 })
 </script>
 </body>
