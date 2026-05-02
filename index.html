@@ -17,7 +17,6 @@
   --text:#e4e0f0;
   --muted:#2e2a42;
   --card:#06060e;
-  /* paid dark theme — siyah + koyu mavi/mor */
   --pd-bg:#02020a;
   --pd-surface:#04040f;
   --pd-border:#0a0a1e;
@@ -46,7 +45,6 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 body.paid-mode::before{background:radial-gradient(ellipse 70% 50% at 15% -10%,rgba(30,10,100,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 110%,rgba(60,20,160,.12) 0%,transparent 60%);}
 body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.055) 3px,rgba(0,0,0,.055) 4px);pointer-events:none;z-index:2;}
 
-/* ── HEADER ── */
 header{position:sticky;top:0;z-index:100;padding:16px 44px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border2);background:rgba(2,2,8,.9);backdrop-filter:blur(28px);animation:slideDown .6s cubic-bezier(.16,1,.3,1) both;}
 @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
 .logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
@@ -72,19 +70,6 @@ body.paid-mode .logo span{color:var(--pd-accent2);}
 .badge{font-size:9px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#000;padding:3px 8px;border-radius:2px;font-weight:600;letter-spacing:1.5px;}
 body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--pd-accent2));color:#e8e4ff;}
 
-#music-btn{display:flex;align-items:center;gap:8px;background:rgba(124,95,230,.1);border:1px solid rgba(124,95,230,.22);color:var(--accent);font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:7px 13px;cursor:none;transition:all .25s;}
-#music-btn:hover{background:rgba(124,95,230,.18);border-color:rgba(124,95,230,.45);}
-.mbars{display:flex;align-items:center;gap:2px;height:12px;}
-.mb{width:2px;background:var(--accent);border-radius:1px;animation:mb .75s ease-in-out infinite alternate;}
-.mb:nth-child(1){height:4px;animation-delay:0s;}
-.mb:nth-child(2){height:10px;animation-delay:.18s;}
-.mb:nth-child(3){height:6px;animation-delay:.36s;}
-.mb:nth-child(4){height:9px;animation-delay:.09s;}
-.mb:nth-child(5){height:5px;animation-delay:.27s;}
-@keyframes mb{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
-#music-btn.paused .mb{animation-play-state:paused;opacity:.35;}
-
-/* ── HERO ── */
 .hero{position:relative;z-index:3;padding:90px 44px 60px;text-align:center;overflow:hidden;}
 .hero-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(80px,20vw,220px);font-weight:800;color:rgba(124,95,230,.025);white-space:nowrap;pointer-events:none;letter-spacing:-10px;user-select:none;}
 .glow-line{width:1px;height:60px;background:linear-gradient(to bottom,var(--accent2),transparent);margin:0 auto 28px;animation:hIn .8s .2s both;}
@@ -92,7 +77,6 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .hero h1 .l2{background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .hero p{color:var(--muted);font-size:11px;letter-spacing:3px;text-transform:uppercase;animation:hIn .8s .5s both;}
 @keyframes hIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-/* hero credit */
 .hero-credit{display:inline-flex;align-items:center;gap:12px;margin-top:28px;cursor:none;padding:10px 20px;border:1px solid rgba(102,85,204,.2);background:rgba(60,35,140,.06);transition:all .3s;animation:hIn .8s .7s both;position:relative;overflow:hidden;}
 .hero-credit::before{content:'';position:absolute;inset:0;background:rgba(102,85,204,.05);transform:translateX(-100%);transition:transform .4s;}
 .hero-credit:hover::before{transform:translateX(0);}
@@ -104,18 +88,13 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .hero-credit-arrow{font-size:14px;color:var(--pd-accent2);transition:transform .2s;}
 .hero-credit:hover .hero-credit-arrow{transform:translate(2px,-2px);}
 @keyframes pulse-glow{0%,100%{text-shadow:0 0 14px rgba(153,136,255,.6)}50%{text-shadow:0 0 22px rgba(153,136,255,.95),0 0 40px rgba(102,85,204,.4)}}
-/* about us tab highlight */
 .tab.stab{color:#5544aa;position:relative;}
 .tab.stab:hover{color:#aa99ff;}
 .tab.stab.active{color:#cc99ff;border-bottom-color:#9966ee;text-shadow:0 0 14px rgba(200,150,255,.85);}
-.tab.stab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;
-  background:rgba(80,40,160,.1);
-  box-shadow:0 0 12px 3px rgba(150,80,255,.2),inset 0 0 8px rgba(120,60,220,.08);
-  transition:box-shadow .35s,background .35s;}
+.tab.stab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;background:rgba(80,40,160,.1);box-shadow:0 0 12px 3px rgba(150,80,255,.2),inset 0 0 8px rgba(120,60,220,.08);transition:box-shadow .35s,background .35s;}
 .tab.stab:hover::before{background:rgba(100,50,200,.14);box-shadow:0 0 20px 5px rgba(150,80,255,.3),inset 0 0 12px rgba(120,60,220,.12);}
 .tab.stab.active::before{background:rgba(100,50,200,.16);box-shadow:0 0 28px 7px rgba(170,100,255,.38),0 0 12px 3px rgba(200,150,255,.2),inset 0 0 16px rgba(120,60,220,.14);}
 
-/* ── TABS ── */
 .tabs-wrap{position:relative;z-index:3;padding:0 44px;margin-bottom:44px;animation:hIn .8s .6s both;}
 .tabs{display:flex;border-bottom:1px solid var(--border2);overflow-x:auto;scrollbar-width:none;}
 .tabs::-webkit-scrollbar{display:none;}
@@ -126,31 +105,23 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .tab.active{color:var(--accent);border-bottom-color:var(--accent2);}
 .tab .dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.45;transition:opacity .2s;}
 .tab.active .dot,.tab:hover .dot{opacity:1;}
-/* paid tab */
 .tab.ptab{color:#6655cc;position:relative;}
 .tab.ptab:hover{color:var(--pd-accent2);}
 .tab.ptab.active{color:var(--pd-accent2);border-bottom-color:var(--pd-accent);text-shadow:0 0 14px rgba(153,136,255,.85);}
 .tab.ptab::after{background:rgba(102,85,204,.06);}
-.tab.ptab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;
-  background:rgba(60,35,140,.08);
-  box-shadow:0 0 10px 2px rgba(102,85,204,.22),inset 0 0 8px rgba(102,85,204,.06);
-  transition:box-shadow .35s,background .35s;}
+.tab.ptab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;background:rgba(60,35,140,.08);box-shadow:0 0 10px 2px rgba(102,85,204,.22),inset 0 0 8px rgba(102,85,204,.06);transition:box-shadow .35s,background .35s;}
 .tab.ptab:hover::before{background:rgba(80,50,180,.12);box-shadow:0 0 18px 4px rgba(102,85,204,.32),inset 0 0 12px rgba(102,85,204,.1);}
 .tab.ptab.active::before{background:rgba(80,55,180,.14);box-shadow:0 0 26px 6px rgba(102,85,204,.38),0 0 10px 2px rgba(153,136,255,.22),inset 0 0 16px rgba(102,85,204,.12);}
-/* special tabs — about us (mor glow) — tanım yukarıda */
-/* warn tab */
 .tab.wtab{color:#3d1f1f;}
 .tab.wtab:hover{color:#ff8866;}
 .tab.wtab.active{color:#ff6644;border-bottom-color:#ff6644;}
 
-/* ── CONTENT ── */
 .content{position:relative;z-index:3;padding:0 44px 100px;}
 .panel{display:none;animation:pIn .45s cubic-bezier(.16,1,.3,1) both;}
 .panel.active{display:block;}
 @keyframes pIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 .slabel{font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border2);}
 
-/* ── FREE GRID ── */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px;}
 .card{background:var(--card);border:1px solid var(--border2);padding:28px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;animation:cIn .5s both;}
 .card:hover{border-color:rgba(124,95,230,.28);transform:translateY(-3px);box-shadow:0 14px 44px rgba(0,0,0,.7),0 0 28px rgba(124,95,230,.05);}
@@ -171,7 +142,6 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .btn-dl:hover::after{transform:translateX(0);}
 .btn-dl:hover{letter-spacing:2px;}
 
-/* ── PAID THEME — dark navy/indigo/purple ── */
 .paid-hero{position:relative;padding:50px 0 40px;text-align:center;overflow:hidden;margin-bottom:32px;}
 .paid-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(60,30,160,.1),transparent 70%);pointer-events:none;}
 .paid-hero-label{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--pd-accent2);margin-bottom:12px;opacity:.7;}
@@ -191,7 +161,6 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .pcard:hover .pcard-shine{opacity:1;}
 .pcard-corner{position:absolute;bottom:16px;right:16px;width:32px;height:32px;border-right:1px solid var(--pd-border2);border-bottom:1px solid var(--pd-border2);transition:border-color .3s;}
 .pcard:hover .pcard-corner{border-color:rgba(102,85,204,.4);}
-
 .plogo{width:42px;height:42px;border:1px solid var(--pd-border2);background:rgba(60,30,160,.06);object-fit:cover;margin-bottom:14px;filter:grayscale(30%) brightness(.85);transition:filter .3s;}
 .pcard:hover .plogo{filter:grayscale(0%) brightness(1);}
 .plogo-fb{width:42px;height:42px;border:1px solid var(--pd-border2);background:linear-gradient(135deg,rgba(102,85,204,.15),rgba(40,20,100,.08));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--pd-accent2);margin-bottom:14px;}
@@ -204,7 +173,6 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .btn-paid:hover::after{transform:translateX(0);}
 .btn-paid:hover{border-color:rgba(153,136,255,.65);letter-spacing:2px;}
 
-/* ── ABOUT ── */
 .about-wrap{max-width:680px;margin:0 auto;padding:60px 0;text-align:center;}
 .about-glyph{font-family:'Syne',sans-serif;font-size:80px;font-weight:800;color:rgba(124,95,230,.04);letter-spacing:-5px;line-height:1;margin-bottom:40px;user-select:none;}
 .about-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-2px;margin-bottom:20px;}
@@ -219,7 +187,6 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .stat-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-2px;margin-bottom:6px;}
 .stat-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
 
-/* ── WARNING ── */
 .wpanel{max-width:740px;margin:0 auto;padding:60px 0;}
 .wtitle{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;margin-bottom:40px;}
 .wtitle span{color:#ff6644;}
@@ -228,7 +195,6 @@ body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--p
 .wcard-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#ff6644;letter-spacing:1px;margin-bottom:10px;}
 .wcard-p{font-size:11px;color:#444;line-height:2.1;letter-spacing:.4px;}
 .wcard-p strong{color:#666;font-weight:500;}
-
 .coming-soon{text-align:center;padding:120px 0;}
 .coming-soon h2{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:rgba(124,95,230,.08);letter-spacing:-1px;margin-bottom:12px;}
 
@@ -248,7 +214,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
 <div id="cursor-dot"></div>
 <div id="cursor-ring"></div>
 
-
 <header>
   <div class="logo">executor<span>.net</span></div>
   <div class="search-wrap">
@@ -257,10 +222,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
     <div class="search-results" id="search-results"></div>
   </div>
   <div class="hdr-right">
-    <button id="music-btn">
-      <div class="mbars"><div class="mb"></div><div class="mb"></div><div class="mb"></div><div class="mb"></div><div class="mb"></div></div>
-      <span id="mlabel">Click to play</span>
-    </button>
     <div class="badge">FREE</div>
   </div>
 </header>
@@ -299,26 +260,21 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
   <div class="slabel">Windows Executors — Free</div>
   <div class="grid" id="g-win"></div>
 </div>
-
 <div class="panel" id="panel-android">
   <div class="slabel">Android Executors — Free</div>
   <div class="grid" id="g-and"></div>
 </div>
-
 <div class="panel" id="panel-ios">
   <div class="slabel">iOS Executors — Free</div>
   <div class="grid" id="g-ios"></div>
 </div>
-
 <div class="panel" id="panel-external">
   <div class="slabel">External Executors — Free</div>
   <div class="grid" id="g-ext"></div>
 </div>
-
 <div class="panel" id="panel-macos">
   <div class="coming-soon"><h2>COMING SOON</h2><p style="color:var(--muted);font-size:10px;letter-spacing:2px;">macOS executors being added</p></div>
 </div>
-
 <div class="panel" id="panel-paidwin">
   <div class="paid-hero">
     <div class="paid-hero-label">Premium</div>
@@ -328,7 +284,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
   <div class="paid-divider"><span>Listed Below</span></div>
   <div class="pgrid" id="g-pwin"></div>
 </div>
-
 <div class="panel" id="panel-paidext">
   <div class="paid-hero">
     <div class="paid-hero-label">Premium</div>
@@ -338,7 +293,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
   <div class="paid-divider"><span>Listed Below</span></div>
   <div class="pgrid" id="g-pext"></div>
 </div>
-
 <div class="panel" id="panel-paidmac">
   <div class="paid-hero">
     <div class="paid-hero-label">Premium</div>
@@ -348,7 +302,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
   <div class="paid-divider"><span>Listed Below</span></div>
   <div class="pgrid" id="g-pmac"></div>
 </div>
-
 <div class="panel" id="panel-warning">
   <div class="wpanel">
     <div class="wtitle">Read Before <span>Download</span></div>
@@ -359,7 +312,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
     <div class="wcard"><div class="wcard-t">Third-Party Links</div><div class="wcard-p">All links point to external hosting. <strong>We are not responsible for content at any external URL.</strong></div></div>
   </div>
 </div>
-
 <div class="panel" id="panel-aboutus">
   <div class="about-wrap">
     <div class="about-glyph">EX</div>
@@ -392,7 +344,6 @@ footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:2
 </footer>
 
 <script>
-// ── SAMRAT'tan alınan güncellenmiş logolar ──
 const WIN=[
   {n:'Bunni',logo:'https://files.catbox.moe/hd9264.webp',url:'https://gofile.io/d/JzrHU7',lbl:'Download'},
   {n:'Swift',logo:'https://files.catbox.moe/5krpqt.webp',url:'https://getswift.vip/download',lbl:'Download'},
@@ -476,13 +427,13 @@ const TAB_MAP={
 const DL=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
 const WB=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`
 
-function buildGrid(data, id, plat, paid=false) {
-  document.getElementById(id).innerHTML = data.map((e,i)=>{
+function buildGrid(data,id,plat,paid=false){
+  document.getElementById(id).innerHTML=data.map((e,i)=>{
     const init=e.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
-    const hasLogo = e.logo && !e.logo.includes('placeholder')
+    const hasLogo=e.logo&&!e.logo.includes('placeholder')
     const logoEl=paid
-      ? (hasLogo?`<img class="plogo" src="${e.logo}" alt="${e.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="plogo-fb" style="display:none">${init}</div>`:`<div class="plogo-fb">${init}</div>`)
-      : (hasLogo?`<img class="clogo" src="${e.logo}" alt="${e.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="clogo-fb" style="display:none">${init}</div>`:`<div class="clogo-fb">${init}</div>`)
+      ?(hasLogo?`<img class="plogo" src="${e.logo}" alt="${e.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="plogo-fb" style="display:none">${init}</div>`:`<div class="plogo-fb">${init}</div>`)
+      :(hasLogo?`<img class="clogo" src="${e.logo}" alt="${e.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="clogo-fb" style="display:none">${init}</div>`:`<div class="clogo-fb">${init}</div>`)
     if(paid){
       const ic=e.lbl==='Download'?DL:WB
       return `<div class="pcard" style="animation-delay:${i*.04}s">
@@ -523,8 +474,8 @@ function sw(id,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
   document.getElementById('panel-'+id).classList.add('active')
   btn.classList.add('active')
-  document.querySelectorAll('#panel-'+id+' .card,#panel-'+id+' .pcard').forEach((c,i)=>{c.style.animation='none';c.offsetHeight;c.style.animation=`cIn .5s ${i*.035}s both`})
-  document.body.classList.toggle('paid-mode', PAID_PANELS.includes(id))
+  document.querySelectorAll(`#panel-${id} .card,#panel-${id} .pcard`).forEach((c,i)=>{c.style.animation='none';c.offsetHeight;c.style.animation=`cIn .5s ${i*.035}s both`})
+  document.body.classList.toggle('paid-mode',PAID_PANELS.includes(id))
 }
 window.sw=sw
 
@@ -535,7 +486,6 @@ function swAbout(){
 }
 window.swAbout=swAbout
 
-// ── SEARCH ──
 const SI=document.getElementById('search-input'),SR=document.getElementById('search-results')
 SI.addEventListener('input',()=>{
   const q=SI.value.trim().toLowerCase()
@@ -544,7 +494,7 @@ SI.addEventListener('input',()=>{
   if(!hits.length){SR.innerHTML='<div class="sr-empty">No executors found</div>';SR.classList.add('open');return}
   SR.innerHTML=hits.map(e=>{
     const init=e.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
-    const hasLogo = e.logo && !e.logo.includes('placeholder')
+    const hasLogo=e.logo&&!e.logo.includes('placeholder')
     const lgoEl=hasLogo?`<img class="sr-fb" src="${e.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="sr-fb" style="display:none">${init}</div>`:`<div class="sr-fb">${init}</div>`
     return `<div class="sr-item" onclick="goTo('${e.plat}','${e.n.replace(/'/g,"\\'")}')">
       ${lgoEl}<span class="sr-name">${e.n}</span><span class="sr-plat">${e.plat}</span>
@@ -572,7 +522,6 @@ function goTo(plat,name){
 }
 window.goTo=goTo
 
-// ── CURSOR ──
 const DOT=document.getElementById('cursor-dot'),RING=document.getElementById('cursor-ring')
 let mx=0,my=0,rx=0,ry=0
 document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;DOT.style.left=mx+'px';DOT.style.top=my+'px'})
@@ -583,7 +532,6 @@ document.querySelectorAll('a,button,.tab,.card,.pcard').forEach(el=>{
   el.addEventListener('mouseleave',()=>RING.classList.remove('hover'))
 })
 
-// ── TRAIL ──
 const TC=document.getElementById('trail-c'),TX=TC.getContext('2d'),TR=[]
 const rsz=()=>{TC.width=innerWidth;TC.height=innerHeight}
 rsz();window.addEventListener('resize',rsz)
@@ -602,7 +550,6 @@ document.addEventListener('mousemove',e=>{TR.push({x:e.clientX,y:e.clientY,t:Dat
   requestAnimationFrame(dt)
 })()
 
-// ── RAIN ──
 const RC=document.getElementById('rain'),RX=RC.getContext('2d')
 let RW,RH,DRPS=[],SPLASHES=[],STREAKS=[]
 
@@ -659,123 +606,6 @@ const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH
   }
   requestAnimationFrame(drawR)
 })()
-
-// ── MUSIC — Web Audio API ambient synth (no file needed, loops forever) ──
-const MBTN=document.getElementById('music-btn')
-const MLBL=document.getElementById('mlabel')
-let AC=null,playing=false,masterGain=null,reverbNode=null
-
-function buildAudio(){
-  AC=new(window.AudioContext||window.webkitAudioContext)()
-  masterGain=AC.createGain()
-  masterGain.gain.value=0
-
-  // convolver reverb
-  reverbNode=AC.createConvolver()
-  const rl=AC.sampleRate*3,rb=AC.createBuffer(2,rl,AC.sampleRate)
-  for(let c=0;c<2;c++){const d=rb.getChannelData(c);for(let i=0;i<rl;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/rl,2.5)}
-  reverbNode.buffer=rb
-  const rvg=AC.createGain();rvg.gain.value=0.55
-  reverbNode.connect(rvg);rvg.connect(masterGain)
-  masterGain.connect(AC.destination)
-
-  // chord progression: Am - F - C - G (looping ~16 bars)
-  const NOTES={
-    Am:[220,261.63,329.63],
-    F: [174.61,220,261.63],
-    C: [261.63,329.63,392],
-    G: [196,246.94,293.66]
-  }
-  const PROG=['Am','F','C','G']
-  const BAR=2.4 // seconds per chord
-
-  function pad(freq,start,dur){
-    const o=AC.createOscillator()
-    const g=AC.createGain()
-    o.type='sine'
-    o.frequency.value=freq
-    o.connect(g);g.connect(reverbNode);g.connect(masterGain)
-    const A=0.08,S=0.06
-    g.gain.setValueAtTime(0,start)
-    g.gain.linearRampToValueAtTime(A,start+0.6)
-    g.gain.linearRampToValueAtTime(S,start+1.2)
-    g.gain.setValueAtTime(S,start+dur-0.5)
-    g.gain.linearRampToValueAtTime(0,start+dur)
-    o.start(start);o.stop(start+dur)
-  }
-
-  function playBass(freq,start,dur){
-    const o=AC.createOscillator()
-    const g=AC.createGain()
-    o.type='triangle'
-    o.frequency.value=freq/2
-    o.connect(g);g.connect(masterGain)
-    g.gain.setValueAtTime(0,start)
-    g.gain.linearRampToValueAtTime(0.055,start+0.1)
-    g.gain.linearRampToValueAtTime(0.03,start+dur*0.6)
-    g.gain.linearRampToValueAtTime(0,start+dur)
-    o.start(start);o.stop(start+dur)
-  }
-
-  function scheduleLoop(offset){
-    const loopLen=PROG.length*BAR
-    PROG.forEach((chord,i)=>{
-      const t=offset+i*BAR
-      NOTES[chord].forEach(f=>pad(f,t,BAR+0.3))
-      playBass(NOTES[chord][0],t,BAR)
-    })
-    // schedule next loop slightly before end
-    const nextAt=offset+loopLen-0.2
-    const delay=(nextAt-AC.currentTime)*1000
-    setTimeout(()=>scheduleLoop(offset+loopLen),Math.max(0,delay))
-  }
-
-  scheduleLoop(AC.currentTime+0.1)
-
-  // fade in
-  masterGain.gain.setValueAtTime(0,AC.currentTime)
-  masterGain.gain.linearRampToValueAtTime(0.7,AC.currentTime+2.5)
-  playing=true
-  MBTN.classList.remove('paused')
-  MLBL.textContent='Ambient — executor.net'
-}
-
-function startMusic(){
-  if(AC)return
-  try{buildAudio()}catch(e){console.warn('Audio failed:',e)}
-}
-
-// autoplay on first any interaction (browsers require gesture)
-const onFirst=e=>{
-  startMusic()
-  document.removeEventListener('click',onFirst,true)
-  document.removeEventListener('keydown',onFirst,true)
-  document.removeEventListener('touchstart',onFirst,true)
-}
-document.addEventListener('click',onFirst,true)
-document.addEventListener('keydown',onFirst,true)
-document.addEventListener('touchstart',onFirst,true)
-
-// also try immediately (works in some browsers)
-setTimeout(()=>{
-  if(!AC){try{const t=new(window.AudioContext||window.webkitAudioContext)();if(t.state==='running'){AC=null;buildAudio()}else t.close()}catch(e){}}
-},100)
-
-MBTN.addEventListener('click',e=>{
-  e.stopPropagation()
-  if(!AC){startMusic();return}
-  playing=!playing
-  if(playing){
-    masterGain.gain.cancelScheduledValues(AC.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0.7,AC.currentTime+0.8)
-    MBTN.classList.remove('paused');MLBL.textContent='Ambient — executor.net'
-    if(AC.state==='suspended')AC.resume()
-  }else{
-    masterGain.gain.cancelScheduledValues(AC.currentTime)
-    masterGain.gain.linearRampToValueAtTime(0,AC.currentTime+0.8)
-    MBTN.classList.add('paused');MLBL.textContent='Click to play'
-  }
-})
 </script>
 </body>
 </html>
