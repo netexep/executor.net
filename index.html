@@ -1,2247 +1,617 @@
 <!DOCTYPE html>
-<html lang="tr" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAMRAT — Executor Hub</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<title>executor.net</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-:root {
-  --black: #000000;
-  --white: #ffffff;
-  --gray-950: #050505;
-  --gray-900: #0a0a0a;
-  --gray-800: #111111;
-  --gray-700: #1a1a1a;
-  --gray-600: #222222;
-  --gray-400: #555555;
-  --gray-300: #888888;
-  --gray-200: #aaaaaa;
-  --gray-100: #cccccc;
-  --accent: #e8e8e8;
-  --rain: rgba(180,200,255,0.06);
-  --glow: rgba(255,255,255,0.03);
-  --border: rgba(255,255,255,0.06);
-  --border-bright: rgba(255,255,255,0.12);
-  --online: #4ade80;
-  --offline: #555;
-  --premium-gold: #c9a84c;
+:root{
+  --bg:#020208;
+  --surface:#05050e;
+  --border:#0e0e1c;
+  --border2:#171728;
+  --accent:#b8a4f8;
+  --accent2:#7c5fe6;
+  --accent3:#ddd0ff;
+  --text:#e4e0f0;
+  --muted:#2e2a42;
+  --card:#06060e;
+  --pd-bg:#02020a;
+  --pd-surface:#04040f;
+  --pd-border:#0a0a1e;
+  --pd-border2:#10102a;
+  --pd-accent:#6655cc;
+  --pd-accent2:#9988ff;
+  --pd-accent3:#c4baf8;
+  --pd-card:#03030d;
+  --pd-muted:#18183a;
 }
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;cursor:none;}
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+#cursor-dot{width:4px;height:4px;background:var(--accent);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99999;will-change:transform;box-shadow:0 0 8px var(--accent),0 0 20px rgba(124,95,230,.6);}
+#cursor-ring{width:28px;height:28px;border:1px solid rgba(184,164,248,.35);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:99998;will-change:transform;transition:width .3s cubic-bezier(.16,1,.3,1),height .3s cubic-bezier(.16,1,.3,1),border-color .3s;}
+#cursor-ring.hover{width:52px;height:52px;border-color:rgba(184,164,248,.75);}
+body.paid-mode #cursor-dot{background:var(--pd-accent2);box-shadow:0 0 8px var(--pd-accent2),0 0 20px rgba(102,85,204,.6);}
+body.paid-mode #cursor-ring{border-color:rgba(102,85,204,.35);}
+body.paid-mode #cursor-ring.hover{border-color:rgba(153,136,255,.75);}
 
-html { scroll-behavior: smooth; }
+canvas#rain{position:fixed;inset:0;z-index:0;pointer-events:none;}
+canvas#trail-c{position:fixed;inset:0;z-index:99990;pointer-events:none;}
 
-body {
-  background: var(--black);
-  color: var(--gray-100);
-  font-family: 'DM Sans', sans-serif;
-  font-weight: 300;
-  overflow-x: hidden;
-  cursor: none;
-}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% -10%,rgba(80,40,180,.1) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 110%,rgba(50,20,130,.07) 0%,transparent 60%);pointer-events:none;z-index:1;transition:opacity .6s;}
+body.paid-mode::before{background:radial-gradient(ellipse 70% 50% at 15% -10%,rgba(30,10,100,.18) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 85% 110%,rgba(60,20,160,.12) 0%,transparent 60%);}
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.055) 3px,rgba(0,0,0,.055) 4px);pointer-events:none;z-index:2;}
 
-/* === CUSTOM CURSOR === */
-#cursor {
-  position: fixed;
-  width: 8px;
-  height: 8px;
-  background: #fff;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  transition: transform 0.1s ease;
-  mix-blend-mode: difference;
-}
-#cursor-trail {
-  position: fixed;
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(255,255,255,0.25);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94), opacity 0.3s;
-  mix-blend-mode: difference;
-}
-body:hover #cursor { transform: scale(1); }
-.hoverable:hover ~ #cursor,
-a:hover ~ #cursor { transform: scale(3); }
+header{position:sticky;top:0;z-index:100;padding:16px 44px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border2);background:rgba(2,2,8,.9);backdrop-filter:blur(28px);animation:slideDown .6s cubic-bezier(.16,1,.3,1) both;}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;letter-spacing:-.5px;white-space:nowrap;}
+.logo span{color:var(--accent2);}
+body.paid-mode .logo span{color:var(--pd-accent2);}
 
-/* === RAIN CANVAS === */
-#rain-canvas {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.35;
-}
+.search-wrap{flex:1;max-width:340px;position:relative;}
+.search-wrap input{width:100%;background:rgba(14,14,28,.8);border:1px solid var(--border2);color:var(--text);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;padding:8px 12px 8px 34px;outline:none;transition:border-color .25s;caret-color:var(--accent);}
+.search-wrap input::placeholder{color:var(--muted);}
+.search-wrap input:focus{border-color:rgba(124,95,230,.45);}
+.search-wrap .sicon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;}
+.search-results{position:absolute;top:calc(100% + 4px);left:0;right:0;background:rgba(6,6,14,.98);border:1px solid var(--border2);z-index:9999;max-height:260px;overflow-y:auto;display:none;}
+.search-results.open{display:block;}
+.sr-item{padding:10px 14px;font-size:10px;letter-spacing:1.5px;cursor:none;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);transition:background .2s;}
+.sr-item:hover{background:rgba(124,95,230,.08);}
+.sr-item img,.sr-item .sr-fb{width:22px;height:22px;flex-shrink:0;object-fit:cover;}
+.sr-item .sr-fb{background:linear-gradient(135deg,rgba(124,95,230,.2),rgba(80,40,180,.1));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:8px;font-weight:800;color:var(--accent2);}
+.sr-name{color:var(--text);flex:1;}
+.sr-plat{color:var(--muted);font-size:9px;}
+.sr-empty{padding:14px;font-size:10px;color:var(--muted);letter-spacing:1.5px;text-align:center;}
 
-/* === NOISE OVERLAY === */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 1;
-}
+.hdr-right{display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.badge{font-size:9px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#000;padding:3px 8px;border-radius:2px;font-weight:600;letter-spacing:1.5px;}
+body.paid-mode .badge{background:linear-gradient(135deg,var(--pd-accent),var(--pd-accent2));color:#e8e4ff;}
 
-/* === SCANNER LINE === */
-body::after {
-  content: '';
-  position: fixed;
-  top: -100%;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
-  animation: scanner 8s linear infinite;
-  z-index: 2;
-  pointer-events: none;
-}
-@keyframes scanner { to { top: 200%; } }
+.hero{position:relative;z-index:3;padding:90px 44px 60px;text-align:center;overflow:hidden;}
+.hero-bg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-size:clamp(80px,20vw,220px);font-weight:800;color:rgba(124,95,230,.025);white-space:nowrap;pointer-events:none;letter-spacing:-10px;user-select:none;}
+.glow-line{width:1px;height:60px;background:linear-gradient(to bottom,var(--accent2),transparent);margin:0 auto 28px;animation:hIn .8s .2s both;}
+.hero h1{font-family:'Syne',sans-serif;font-size:clamp(52px,9vw,98px);font-weight:800;line-height:.92;letter-spacing:-4px;margin-bottom:22px;animation:hIn .8s .3s both;}
+.hero h1 .l2{background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero p{color:var(--muted);font-size:11px;letter-spacing:3px;text-transform:uppercase;animation:hIn .8s .5s both;}
+@keyframes hIn{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+.hero-credit{display:inline-flex;align-items:center;gap:12px;margin-top:28px;cursor:none;padding:10px 20px;border:1px solid rgba(102,85,204,.2);background:rgba(60,35,140,.06);transition:all .3s;animation:hIn .8s .7s both;position:relative;overflow:hidden;}
+.hero-credit::before{content:'';position:absolute;inset:0;background:rgba(102,85,204,.05);transform:translateX(-100%);transition:transform .4s;}
+.hero-credit:hover::before{transform:translateX(0);}
+.hero-credit:hover{border-color:rgba(102,85,204,.45);box-shadow:0 0 22px rgba(102,85,204,.18);}
+.hero-credit-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(102,85,204,.35));width:40px;}
+.hero-credit-text{font-size:10px;letter-spacing:2px;color:#4a3a88;text-transform:uppercase;}
+.hero-credit-text strong{color:#8877dd;font-weight:500;}
+.hero-credit-hl{color:var(--pd-accent2);font-weight:700;letter-spacing:3px;text-shadow:0 0 14px rgba(153,136,255,.6);animation:pulse-glow 2s ease-in-out infinite;}
+.hero-credit-arrow{font-size:14px;color:var(--pd-accent2);transition:transform .2s;}
+.hero-credit:hover .hero-credit-arrow{transform:translate(2px,-2px);}
+@keyframes pulse-glow{0%,100%{text-shadow:0 0 14px rgba(153,136,255,.6)}50%{text-shadow:0 0 22px rgba(153,136,255,.95),0 0 40px rgba(102,85,204,.4)}}
+.tab.stab{color:#5544aa;position:relative;}
+.tab.stab:hover{color:#aa99ff;}
+.tab.stab.active{color:#cc99ff;border-bottom-color:#9966ee;text-shadow:0 0 14px rgba(200,150,255,.85);}
+.tab.stab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;background:rgba(80,40,160,.1);box-shadow:0 0 12px 3px rgba(150,80,255,.2),inset 0 0 8px rgba(120,60,220,.08);transition:box-shadow .35s,background .35s;}
+.tab.stab:hover::before{background:rgba(100,50,200,.14);box-shadow:0 0 20px 5px rgba(150,80,255,.3),inset 0 0 12px rgba(120,60,220,.12);}
+.tab.stab.active::before{background:rgba(100,50,200,.16);box-shadow:0 0 28px 7px rgba(170,100,255,.38),0 0 12px 3px rgba(200,150,255,.2),inset 0 0 16px rgba(120,60,220,.14);}
 
-/* === LAYOUT === */
-.wrap { position: relative; z-index: 3; }
+.tabs-wrap{position:relative;z-index:3;padding:0 44px;margin-bottom:44px;animation:hIn .8s .6s both;}
+.tabs{display:flex;border-bottom:1px solid var(--border2);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:13px 20px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;cursor:none;border:none;background:none;color:var(--muted);border-bottom:1px solid transparent;margin-bottom:-1px;transition:color .25s,border-color .25s;white-space:nowrap;display:flex;align-items:center;gap:8px;position:relative;}
+.tab::after{content:'';position:absolute;inset:0;background:rgba(124,95,230,.04);opacity:0;transition:opacity .2s;}
+.tab:hover::after{opacity:1;}
+.tab:hover{color:var(--text);}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent2);}
+.tab .dot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.45;transition:opacity .2s;}
+.tab.active .dot,.tab:hover .dot{opacity:1;}
+.tab.ptab{color:#6655cc;position:relative;}
+.tab.ptab:hover{color:var(--pd-accent2);}
+.tab.ptab.active{color:var(--pd-accent2);border-bottom-color:var(--pd-accent);text-shadow:0 0 14px rgba(153,136,255,.85);}
+.tab.ptab::after{background:rgba(102,85,204,.06);}
+.tab.ptab::before{content:'';position:absolute;inset:-2px 1px;border-radius:3px;pointer-events:none;z-index:-1;background:rgba(60,35,140,.08);box-shadow:0 0 10px 2px rgba(102,85,204,.22),inset 0 0 8px rgba(102,85,204,.06);transition:box-shadow .35s,background .35s;}
+.tab.ptab:hover::before{background:rgba(80,50,180,.12);box-shadow:0 0 18px 4px rgba(102,85,204,.32),inset 0 0 12px rgba(102,85,204,.1);}
+.tab.ptab.active::before{background:rgba(80,55,180,.14);box-shadow:0 0 26px 6px rgba(102,85,204,.38),0 0 10px 2px rgba(153,136,255,.22),inset 0 0 16px rgba(102,85,204,.12);}
+.tab.wtab{color:#3d1f1f;}
+.tab.wtab:hover{color:#ff8866;}
+.tab.wtab.active{color:#ff6644;border-bottom-color:#ff6644;}
 
-/* === NAV === */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 3rem;
-  height: 64px;
-  border-bottom: 1px solid var(--border);
-  background: rgba(0,0,0,0.7);
-  backdrop-filter: blur(20px);
-}
-.nav-logo {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
-  letter-spacing: 0.15em;
-  color: #fff;
-  text-decoration: none;
-}
-.nav-logo span { color: var(--gray-400); }
-.nav-links { display: flex; gap: 2.5rem; list-style: none; }
-.nav-links a {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gray-300);
-  text-decoration: none;
-  transition: color 0.3s;
-  cursor: none;
-}
-.nav-links a:hover { color: #fff; }
-.nav-stat {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--gray-400);
-  letter-spacing: 0.05em;
-}
+.content{position:relative;z-index:3;padding:0 44px 100px;}
+.panel{display:none;animation:pIn .45s cubic-bezier(.16,1,.3,1) both;}
+.panel.active{display:block;}
+@keyframes pIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.slabel{font-size:9px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px;padding-bottom:10px;border-bottom:1px solid var(--border2);}
 
-/* === HERO === */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0 3rem;
-  padding-top: 64px;
-  position: relative;
-  overflow: hidden;
-}
-.hero-eyebrow {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--gray-400);
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.hero-eyebrow::before {
-  content: '';
-  width: 40px;
-  height: 1px;
-  background: var(--gray-600);
-}
-.hero-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(5rem, 14vw, 13rem);
-  line-height: 0.88;
-  letter-spacing: -0.01em;
-  color: #fff;
-  margin-bottom: 1.5rem;
-}
-.hero-title .outline {
-  -webkit-text-stroke: 1px rgba(255,255,255,0.2);
-  color: transparent;
-}
-.hero-sub {
-  max-width: 480px;
-  color: var(--gray-300);
-  font-size: 0.95rem;
-  line-height: 1.7;
-  margin-bottom: 3rem;
-}
-.hero-cta {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.btn-main {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 1rem 2.5rem;
-  background: #fff;
-  color: #000;
-  border: none;
-  cursor: none;
-  text-decoration: none;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-}
-.btn-main::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.1);
-  transform: translateX(-100%);
-  transition: transform 0.3s;
-}
-.btn-main:hover::after { transform: translateX(0); }
-.btn-ghost {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 1rem 2.5rem;
-  background: transparent;
-  color: var(--gray-300);
-  border: 1px solid var(--border-bright);
-  cursor: none;
-  text-decoration: none;
-  transition: all 0.3s;
-}
-.btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px;}
+.card{background:var(--card);border:1px solid var(--border2);padding:28px;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;animation:cIn .5s both;}
+.card:hover{border-color:rgba(124,95,230,.28);transform:translateY(-3px);box-shadow:0 14px 44px rgba(0,0,0,.7),0 0 28px rgba(124,95,230,.05);}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);opacity:0;transition:opacity .4s;}
+.card:hover::before{opacity:.5;}
+.card-corner{position:absolute;bottom:16px;right:16px;width:32px;height:32px;border-right:1px solid var(--border2);border-bottom:1px solid var(--border2);transition:border-color .3s;}
+.card:hover .card-corner{border-color:rgba(124,95,230,.35);}
+@keyframes cIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 
-.hero-stats {
-  position: absolute;
-  right: 3rem;
-  bottom: 4rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  text-align: right;
-}
-.hero-stat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.5rem;
-  color: #fff;
-  line-height: 1;
-}
-.hero-stat-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.15em;
-  color: var(--gray-400);
-  text-transform: uppercase;
-}
+.clogo{width:42px;height:42px;border:1px solid var(--border2);background:rgba(124,95,230,.06);object-fit:cover;margin-bottom:14px;filter:grayscale(25%);transition:filter .3s;}
+.card:hover .clogo{filter:grayscale(0%);}
+.clogo-fb{width:42px;height:42px;border:1px solid var(--border2);background:linear-gradient(135deg,rgba(124,95,230,.14),rgba(80,40,180,.08));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--accent2);margin-bottom:14px;}
+.cnum{font-size:9px;color:var(--muted);letter-spacing:2.5px;margin-bottom:8px;}
+.cname{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px;color:var(--accent3);}
+.cplat{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;}
+.btn-dl{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,var(--accent2),rgba(90,50,200,.75));color:#fff;font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:9px 15px;border:none;cursor:none;text-decoration:none;transition:all .2s;position:relative;overflow:hidden;}
+.btn-dl::after{content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);transform:translateX(-100%);transition:transform .3s;}
+.btn-dl:hover::after{transform:translateX(0);}
+.btn-dl:hover{letter-spacing:2px;}
 
-/* === DIVIDER === */
-.section-divider {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0 3rem;
-  margin: 1rem 0;
-}
-.section-divider-line { flex: 1; height: 1px; background: var(--border); }
-.section-divider-text {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--gray-500, #444);
-}
+.paid-hero{position:relative;padding:50px 0 40px;text-align:center;overflow:hidden;margin-bottom:32px;}
+.paid-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(60,30,160,.1),transparent 70%);pointer-events:none;}
+.paid-hero-label{font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--pd-accent2);margin-bottom:12px;opacity:.7;}
+.paid-hero-title{font-family:'Syne',sans-serif;font-size:clamp(32px,6vw,64px);font-weight:800;letter-spacing:-3px;line-height:.9;}
+.paid-hero-title span{background:linear-gradient(135deg,var(--pd-accent3),var(--pd-accent2),var(--pd-accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.paid-hero-sub{font-size:10px;color:#1a1a3a;letter-spacing:2.5px;text-transform:uppercase;margin-top:14px;}
+.paid-divider{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+.paid-divider::before,.paid-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(102,85,204,.25),transparent);}
+.paid-divider span{font-size:9px;color:var(--pd-accent2);letter-spacing:3px;text-transform:uppercase;opacity:.5;}
 
-/* === SEARCH === */
-.search-section {
-  padding: 4rem 3rem;
-  border-top: 1px solid var(--border);
-}
-.search-header {
-  display: flex;
-  align-items: baseline;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-.search-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.5rem;
-  color: #fff;
-  letter-spacing: 0.05em;
-}
-.search-sub {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-  color: var(--gray-400);
-}
-.search-bar {
-  position: relative;
-  max-width: 600px;
-  margin-bottom: 2rem;
-}
-.search-bar input {
-  width: 100%;
-  background: transparent;
-  border: 1px solid var(--border-bright);
-  color: #fff;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.8rem;
-  padding: 1rem 3rem 1rem 1.5rem;
-  outline: none;
-  transition: border-color 0.3s;
-}
-.search-bar input::placeholder { color: var(--gray-400); }
-.search-bar input:focus { border-color: rgba(255,255,255,0.3); }
-.search-bar i {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--gray-400);
-  font-size: 0.8rem;
-}
-.filter-row {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-.filter-btn {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.5rem 1.2rem;
-  background: transparent;
-  color: var(--gray-300);
-  border: 1px solid var(--border);
-  cursor: none;
-  transition: all 0.2s;
-}
-.filter-btn:hover, .filter-btn.active {
-  background: #fff;
-  color: #000;
-  border-color: #fff;
-}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:2px;}
+.pcard{background:var(--pd-card);border:1px solid var(--pd-border2);padding:32px;position:relative;overflow:hidden;transition:border-color .35s,transform .35s,box-shadow .35s;animation:cIn .5s both;}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--pd-accent),transparent);opacity:.12;transition:opacity .4s;}
+.pcard:hover{border-color:rgba(102,85,204,.35);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.9),0 0 40px rgba(60,30,160,.08);}
+.pcard:hover::before{opacity:.55;}
+.pcard-shine{position:absolute;top:-60px;left:-60px;width:120px;height:120px;background:radial-gradient(ellipse,rgba(102,85,204,.1),transparent 70%);pointer-events:none;transition:opacity .3s;opacity:0;}
+.pcard:hover .pcard-shine{opacity:1;}
+.pcard-corner{position:absolute;bottom:16px;right:16px;width:32px;height:32px;border-right:1px solid var(--pd-border2);border-bottom:1px solid var(--pd-border2);transition:border-color .3s;}
+.pcard:hover .pcard-corner{border-color:rgba(102,85,204,.4);}
+.plogo{width:42px;height:42px;border:1px solid var(--pd-border2);background:rgba(60,30,160,.06);object-fit:cover;margin-bottom:14px;filter:grayscale(30%) brightness(.85);transition:filter .3s;}
+.pcard:hover .plogo{filter:grayscale(0%) brightness(1);}
+.plogo-fb{width:42px;height:42px;border:1px solid var(--pd-border2);background:linear-gradient(135deg,rgba(102,85,204,.15),rgba(40,20,100,.08));display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--pd-accent2);margin-bottom:14px;}
+.pnum{font-size:9px;color:#1a1a38;letter-spacing:2.5px;margin-bottom:8px;}
+.pname{font-family:'Syne',sans-serif;font-size:22px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px;background:linear-gradient(135deg,var(--pd-accent3),var(--pd-accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.pplat{font-size:9px;color:#1a1a38;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;}
+.pbadge{display:inline-block;font-size:8px;letter-spacing:2px;color:var(--pd-accent2);border:1px solid rgba(102,85,204,.28);padding:2px 7px;margin-bottom:12px;text-transform:uppercase;}
+.btn-paid{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(135deg,rgba(60,30,160,.18),rgba(30,15,80,.1));color:var(--pd-accent2);border:1px solid rgba(102,85,204,.28);font-family:'DM Mono',monospace;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;padding:9px 15px;cursor:none;text-decoration:none;transition:all .25s;position:relative;overflow:hidden;}
+.btn-paid::after{content:'';position:absolute;inset:0;background:rgba(102,85,204,.1);transform:translateX(-100%);transition:transform .3s;}
+.btn-paid:hover::after{transform:translateX(0);}
+.btn-paid:hover{border-color:rgba(153,136,255,.65);letter-spacing:2px;}
 
-/* === PLATFORM SECTIONS === */
-.platform-section {
-  padding: 3rem 3rem 5rem;
-  border-top: 1px solid var(--border);
-}
-.platform-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-.platform-icon-wrap {
-  width: 48px;
-  height: 48px;
-  border: 1px solid var(--border-bright);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--gray-300);
-  font-size: 1.1rem;
-}
-.platform-title {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 3rem;
-  color: #fff;
-  letter-spacing: 0.03em;
-}
-.platform-sub {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--gray-400);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  margin-top: 0.25rem;
-}
-.platform-count {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 4rem;
-  color: var(--gray-700);
-  line-height: 1;
-  -webkit-text-stroke: 1px var(--gray-600);
-}
+.about-wrap{max-width:680px;margin:0 auto;padding:60px 0;text-align:center;}
+.about-glyph{font-family:'Syne',sans-serif;font-size:80px;font-weight:800;color:rgba(124,95,230,.04);letter-spacing:-5px;line-height:1;margin-bottom:40px;user-select:none;}
+.about-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-2px;margin-bottom:20px;}
+.about-title span{background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.about-desc{color:var(--muted);font-size:12px;line-height:2.1;letter-spacing:.5px;margin-bottom:40px;}
+.about-creator{display:inline-flex;align-items:center;gap:12px;border:1px solid var(--border2);padding:16px 28px;background:var(--card);position:relative;overflow:hidden;}
+.about-creator::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent2),transparent);}
+.about-creator-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+.about-creator-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.about-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:40px;}
+.stat{background:var(--card);border:1px solid var(--border2);padding:24px 20px;text-align:center;}
+.stat-num{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,var(--accent3),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-2px;margin-bottom:6px;}
+.stat-label{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
 
-/* === EXECUTOR GRID === */
-.exec-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1px;
-  background: var(--border);
-}
+.wpanel{max-width:740px;margin:0 auto;padding:60px 0;}
+.wtitle{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;letter-spacing:-2px;margin-bottom:40px;}
+.wtitle span{color:#ff6644;}
+.wcard{background:rgba(8,4,4,.9);border:1px solid rgba(40,15,15,.9);padding:34px;margin-bottom:3px;position:relative;}
+.wcard::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ff6644,transparent);opacity:.25;}
+.wcard-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:#ff6644;letter-spacing:1px;margin-bottom:10px;}
+.wcard-p{font-size:11px;color:#444;line-height:2.1;letter-spacing:.4px;}
+.wcard-p strong{color:#666;font-weight:500;}
+.coming-soon{text-align:center;padding:120px 0;}
+.coming-soon h2{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:rgba(124,95,230,.08);letter-spacing:-1px;margin-bottom:12px;}
 
-/* === EXECUTOR CARD === */
-.exec-card {
-  background: var(--gray-950);
-  padding: 2rem;
-  position: relative;
-  transition: background 0.3s;
-  overflow: hidden;
-}
-.exec-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 2px;
-  height: 0;
-  background: #fff;
-  transition: height 0.4s cubic-bezier(0.25,0.46,0.45,0.94);
-}
-.exec-card:hover { background: var(--gray-900); }
-.exec-card:hover::before { height: 100%; }
+footer{position:relative;z-index:3;border-top:1px solid var(--border2);padding:20px 44px;display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:10px;letter-spacing:1.5px;background:rgba(2,2,8,.92);}
 
-.card-badge-wrap {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  display: flex;
-  gap: 0.4rem;
-}
-.badge {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.6rem;
-  border: 1px solid;
-}
-.badge-featured { border-color: rgba(255,255,255,0.3); color: #fff; }
-.badge-premium { border-color: var(--premium-gold); color: var(--premium-gold); }
-
-.card-top {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  margin-bottom: 1.75rem;
-}
-.exec-logo {
-  width: 52px;
-  height: 52px;
-  object-fit: cover;
-  border: 1px solid var(--border);
-  background: var(--gray-800);
-  flex-shrink: 0;
-  filter: grayscale(20%);
-  transition: filter 0.3s;
-}
-.exec-card:hover .exec-logo { filter: grayscale(0%); }
-.exec-name {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
-  color: #fff;
-  letter-spacing: 0.05em;
-  line-height: 1;
-}
-.exec-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.3rem;
-}
-.exec-rating .stars { color: var(--gray-500, #444); font-size: 0.65rem; }
-.exec-rating .stars .lit { color: var(--gray-200); }
-.exec-rating .val {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--gray-400);
-}
-
-.card-meta {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem 1rem;
-  margin-bottom: 1.75rem;
-  padding-bottom: 1.75rem;
-  border-bottom: 1px solid var(--border);
-}
-.meta-row { display: flex; flex-direction: column; gap: 0.2rem; }
-.meta-label {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.55rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gray-400);
-}
-.meta-val {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.7rem;
-  color: var(--gray-200);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.status-dot {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.65rem;
-}
-.status-dot::before {
-  content: '';
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--offline);
-}
-.status-dot.online { color: var(--online); }
-.status-dot.online::before { background: var(--online); box-shadow: 0 0 6px var(--online); }
-.status-dot.offline { color: var(--gray-400); }
-
-.card-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.action-btn {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 0.6rem 1rem;
-  border: 1px solid;
-  text-decoration: none;
-  cursor: none;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
-}
-.action-dl {
-  background: transparent;
-  color: var(--gray-100);
-  border-color: var(--border-bright);
-}
-.action-dl:hover { background: #fff; color: #000; border-color: #fff; }
-.action-vng {
-  background: rgba(20,30,60,0.5);
-  color: #aabfff;
-  border-color: rgba(100,140,255,0.2);
-  position: relative;
-  overflow: hidden;
-}
-.action-vng::after {
-  content: 'VN';
-  position: absolute;
-  top: 1px; right: 3px;
-  font-size: 0.45rem;
-  opacity: 0.5;
-}
-.action-vng:hover { background: rgba(100,140,255,0.15); border-color: rgba(100,140,255,0.4); }
-.action-premium {
-  background: transparent;
-  color: var(--premium-gold);
-  border-color: rgba(201,168,76,0.3);
-}
-.action-premium:hover { background: rgba(201,168,76,0.1); border-color: var(--premium-gold); }
-.action-discord {
-  background: transparent;
-  color: var(--gray-400);
-  border-color: var(--border);
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-.action-discord:hover { color: #7289da; border-color: #7289da; }
-
-/* === MARQUEE === */
-.marquee-wrap {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 1rem 0;
-  overflow: hidden;
-  white-space: nowrap;
-}
-.marquee-inner {
-  display: inline-flex;
-  animation: marquee 25s linear infinite;
-  gap: 4rem;
-}
-.marquee-wrap:hover .marquee-inner { animation-play-state: paused; }
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.marquee-item {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.1rem;
-  letter-spacing: 0.2em;
-  color: var(--gray-600);
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
-}
-.marquee-item::after {
-  content: '✦';
-  font-size: 0.5rem;
-  color: var(--gray-700);
-}
-
-/* === ABOUT === */
-.about-section {
-  padding: 6rem 3rem;
-  border-top: 1px solid var(--border);
-}
-.about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
-.about-left .big-text {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3rem, 6vw, 6rem);
-  line-height: 0.9;
-  color: #fff;
-  margin-bottom: 2rem;
-}
-.about-left .big-text .dim { color: var(--gray-700); -webkit-text-stroke: 1px var(--gray-600); }
-.about-desc { color: var(--gray-300); line-height: 1.8; font-size: 0.9rem; margin-bottom: 2rem; }
-.feat-list { display: flex; flex-direction: column; gap: 0; }
-.feat-item {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.25rem 0;
-  border-bottom: 1px solid var(--border);
-}
-.feat-item:first-child { border-top: 1px solid var(--border); }
-.feat-num {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.8rem;
-  color: var(--gray-700);
-  width: 40px;
-  flex-shrink: 0;
-  line-height: 1;
-}
-.feat-text h4 {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.75rem;
-  color: #fff;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.25rem;
-}
-.feat-text p { font-size: 0.8rem; color: var(--gray-400); line-height: 1.5; }
-
-/* === FOOTER === */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 4rem 3rem 2rem;
-}
-.footer-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  gap: 3rem;
-  margin-bottom: 4rem;
-}
-.footer-brand {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 2rem;
-  color: #fff;
-  letter-spacing: 0.1em;
-  margin-bottom: 1rem;
-}
-.footer-desc { font-size: 0.8rem; color: var(--gray-400); line-height: 1.7; }
-.footer-col h4 {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gray-400);
-  margin-bottom: 1.5rem;
-}
-.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
-.footer-col a {
-  font-size: 0.8rem;
-  color: var(--gray-300);
-  text-decoration: none;
-  transition: color 0.2s;
-  cursor: none;
-}
-.footer-col a:hover { color: #fff; }
-.footer-bottom {
-  padding-top: 2rem;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.footer-bottom p {
-  font-family: 'Space Mono', monospace;
-  font-size: 0.6rem;
-  color: var(--gray-400);
-  letter-spacing: 0.1em;
-}
-
-/* === SCROLL ANIMATIONS === */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.7s cubic-bezier(0.25,0.46,0.45,0.94), transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
-}
-.reveal.visible { opacity: 1; transform: none; }
-
-/* === RESPONSIVE === */
-@media (max-width: 900px) {
-  nav { padding: 0 1.5rem; }
-  .nav-links { display: none; }
-  .hero { padding: 0 1.5rem; padding-top: 64px; }
-  .hero-stats { right: 1.5rem; }
-  .hero-title { font-size: clamp(4rem, 18vw, 7rem); }
-  .search-section, .platform-section, .about-section, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
-  .about-grid { grid-template-columns: 1fr; }
-  .footer-grid { grid-template-columns: 1fr 1fr; }
-  .exec-grid { grid-template-columns: 1fr; }
-  .platform-header { grid-template-columns: auto 1fr; }
-  .platform-count { display: none; }
-}
-
-/* === PAGE TRANSITION === */
-.page-enter {
-  animation: pageIn 1.2s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
-}
-@keyframes pageIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: none; }
-}
-
-/* === GLITCH on logo === */
-.glitch {
-  position: relative;
-}
-.glitch::before, .glitch::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  font-family: inherit;
-  font-size: inherit;
-  color: inherit;
-}
-.glitch::before {
-  left: 2px;
-  color: rgba(255,100,100,0.6);
-  animation: glitch1 4s infinite;
-  clip-path: polygon(0 30%, 100% 30%, 100% 50%, 0 50%);
-}
-.glitch::after {
-  left: -2px;
-  color: rgba(100,150,255,0.6);
-  animation: glitch2 4s infinite;
-  clip-path: polygon(0 60%, 100% 60%, 100% 80%, 0 80%);
-}
-@keyframes glitch1 {
-  0%,95%,100% { transform: none; opacity: 0; }
-  96% { transform: translateX(-2px); opacity: 1; }
-  98% { transform: translateX(2px); opacity: 1; }
-}
-@keyframes glitch2 {
-  0%,93%,100% { transform: none; opacity: 0; }
-  94% { transform: translateX(3px); opacity: 1; }
-  96% { transform: translateX(-1px); opacity: 1; }
+@media(max-width:600px){
+  header,.tabs-wrap,.content,footer{padding-left:18px;padding-right:18px;}
+  .hero{padding:50px 18px;}
+  .about-stats{grid-template-columns:1fr;}
+  .search-wrap{max-width:200px;}
 }
 </style>
 </head>
 <body>
-<div id="cursor"></div>
-<div id="cursor-trail"></div>
-<canvas id="rain-canvas"></canvas>
+<canvas id="rain"></canvas>
+<canvas id="trail-c"></canvas>
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
 
-<div class="wrap page-enter">
-
-<!-- NAV -->
-<nav>
-  <a href="#home" class="nav-logo hoverable">SAM<span>RAT</span></a>
-  <ul class="nav-links">
-    <li><a href="#home" class="hoverable">Home</a></li>
-    <li><a href="#executors" class="hoverable">Executors</a></li>
-    <li><a href="#about" class="hoverable">About</a></li>
-    <li><a href="https://discord.gg/Qrvz4wtmBg" class="hoverable">Discord</a></li>
-  </ul>
-  <div class="nav-stat" id="live-count">50+ EXECUTORS</div>
-</nav>
-
-<!-- HERO -->
-<section class="hero" id="home">
-  <div class="hero-eyebrow">TRUSTED BY 100K+ USERS — EST. 2024</div>
-  <h1 class="hero-title glitch" data-text="EXECUTOR HUB">
-    EXECUTOR<br><span class="outline">HUB</span>
-  </h1>
-  <p class="hero-sub">The definitive directory for Roblox executors across every platform. Curated, updated, and maintained with precision.</p>
-  <div class="hero-cta">
-    <a href="#executors" class="btn-main hoverable"><i class="fas fa-terminal" style="margin-right:.5rem;font-size:.7rem;"></i>Browse Executors</a>
-    <a href="https://discord.gg/Qrvz4wtmBg" class="btn-ghost hoverable"><i class="fab fa-discord" style="margin-right:.5rem;"></i>Community</a>
+<header>
+  <div class="logo">executor<span>.net</span></div>
+  <div class="search-wrap">
+    <svg class="sicon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="search-input" placeholder="Search executors..." autocomplete="off" spellcheck="false">
+    <div class="search-results" id="search-results"></div>
   </div>
-  <div class="hero-stats">
-    <div>
-      <div class="hero-stat-num">50+</div>
-      <div class="hero-stat-label">Executors</div>
-    </div>
-    <div>
-      <div class="hero-stat-num">4</div>
-      <div class="hero-stat-label">Platforms</div>
-    </div>
-    <div>
-      <div class="hero-stat-num">24/7</div>
-      <div class="hero-stat-label">Updated</div>
-    </div>
+  <div class="hdr-right">
+    <div class="badge">FREE</div>
   </div>
-</section>
+</header>
 
-<!-- MARQUEE -->
-<div class="marquee-wrap">
-  <div class="marquee-inner">
-    <span class="marquee-item">ANDROID</span>
-    <span class="marquee-item">iOS</span>
-    <span class="marquee-item">WINDOWS</span>
-    <span class="marquee-item">MACOS</span>
-    <span class="marquee-item">EXTERNAL</span>
-    <span class="marquee-item">FREE</span>
-    <span class="marquee-item">PREMIUM</span>
-    <span class="marquee-item">VERIFIED</span>
-    <span class="marquee-item">ANDROID</span>
-    <span class="marquee-item">iOS</span>
-    <span class="marquee-item">WINDOWS</span>
-    <span class="marquee-item">MACOS</span>
-    <span class="marquee-item">EXTERNAL</span>
-    <span class="marquee-item">FREE</span>
-    <span class="marquee-item">PREMIUM</span>
-    <span class="marquee-item">VERIFIED</span>
+<div class="hero">
+  <div class="hero-bg">EXEC</div>
+  <div class="glow-line"></div>
+  <h1>ROBLOX<br><span class="l2">EXECUTORS</span></h1>
+  <p>Windows &bull; Android &bull; iOS &bull; External &bull; macOS</p>
+  <div class="hero-credit" onclick="swAbout()">
+    <span class="hero-credit-line"></span>
+    <span class="hero-credit-text">made by <strong>oxyrias</strong> in discord &mdash; go to <span class="hero-credit-hl">ABOUT US</span></span>
+    <span class="hero-credit-arrow">&#8599;</span>
+    <span class="hero-credit-line"></span>
   </div>
 </div>
 
-<!-- SEARCH -->
-<section class="search-section" id="executors">
-  <div class="search-header">
-    <div class="search-title">FIND</div>
-    <div class="search-sub">// search executors</div>
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab active" onclick="sw('windows',this)"><span class="dot"></span>Windows</button>
+    <button class="tab" onclick="sw('android',this)"><span class="dot"></span>Android</button>
+    <button class="tab" onclick="sw('ios',this)"><span class="dot"></span>iOS</button>
+    <button class="tab" onclick="sw('external',this)"><span class="dot"></span>External</button>
+    <button class="tab" onclick="sw('macos',this)"><span class="dot"></span>macOS</button>
+    <button class="tab ptab" onclick="sw('paidwin',this)"><span class="dot"></span>Paid Windows</button>
+    <button class="tab ptab" onclick="sw('paidext',this)"><span class="dot"></span>Paid External</button>
+    <button class="tab ptab" onclick="sw('paidmac',this)"><span class="dot"></span>Paid macOS</button>
+    <button class="tab wtab" onclick="sw('warning',this)"><span class="dot"></span>⚠ Read First</button>
+    <button class="tab stab" onclick="sw('aboutus',this)"><span class="dot"></span>About Us</button>
   </div>
-  <div class="search-bar">
-    <input type="text" id="exec-search" placeholder="arceus, delta, krnl...">
-    <i class="fas fa-search"></i>
+</div>
+
+<div class="content">
+
+<div class="panel active" id="panel-windows">
+  <div class="slabel">Windows Executors — Free</div>
+  <div class="grid" id="g-win"></div>
+</div>
+<div class="panel" id="panel-android">
+  <div class="slabel">Android Executors — Free</div>
+  <div class="grid" id="g-and"></div>
+</div>
+<div class="panel" id="panel-ios">
+  <div class="slabel">iOS Executors — Free</div>
+  <div class="grid" id="g-ios"></div>
+</div>
+<div class="panel" id="panel-external">
+  <div class="slabel">External Executors — Free</div>
+  <div class="grid" id="g-ext"></div>
+</div>
+<div class="panel" id="panel-macos">
+  <div class="coming-soon"><h2>COMING SOON</h2><p style="color:var(--muted);font-size:10px;letter-spacing:2px;">macOS executors being added</p></div>
+</div>
+<div class="panel" id="panel-paidwin">
+  <div class="paid-hero">
+    <div class="paid-hero-label">Premium</div>
+    <div class="paid-hero-title">Paid <span>Windows</span></div>
+    <div class="paid-hero-sub">Windows &bull; Premium Executors</div>
   </div>
-  <div class="filter-row">
-    <button class="filter-btn active hoverable" data-filter="all">All</button>
-    <button class="filter-btn hoverable" data-filter="android"><i class="fab fa-android"></i> Android</button>
-    <button class="filter-btn hoverable" data-filter="ios"><i class="fab fa-apple"></i> iOS</button>
-    <button class="filter-btn hoverable" data-filter="windows"><i class="fab fa-windows"></i> Windows</button>
-    <button class="filter-btn hoverable" data-filter="macos"><i class="fas fa-laptop"></i> macOS</button>
-    <button class="filter-btn hoverable" data-filter="external"><i class="fas fa-desktop"></i> External</button>
+  <div class="paid-divider"><span>Listed Below</span></div>
+  <div class="pgrid" id="g-pwin"></div>
+</div>
+<div class="panel" id="panel-paidext">
+  <div class="paid-hero">
+    <div class="paid-hero-label">Premium</div>
+    <div class="paid-hero-title">Paid <span>External</span></div>
+    <div class="paid-hero-sub">External &bull; Premium Executors</div>
   </div>
-</section>
-
-<!-- ANDROID -->
-<section class="platform-section reveal" data-platform="android" id="android">
-  <div class="platform-header">
-    <div class="platform-icon-wrap"><i class="fab fa-android"></i></div>
-    <div>
-      <div class="platform-title">ANDROID</div>
-      <div class="platform-sub">Mobile executors for Android devices</div>
-    </div>
-    <div class="platform-count">16</div>
+  <div class="paid-divider"><span>Listed Below</span></div>
+  <div class="pgrid" id="g-pext"></div>
+</div>
+<div class="panel" id="panel-paidmac">
+  <div class="paid-hero">
+    <div class="paid-hero-label">Premium</div>
+    <div class="paid-hero-title">Paid <span>macOS</span></div>
+    <div class="paid-hero-sub">macOS &bull; Premium Executors</div>
   </div>
-  <div class="exec-grid" id="grid-android">
-
-    <!-- Arceus X -->
-    <div class="exec-card reveal" data-name="arceus x">
-      <div class="card-badge-wrap"><span class="badge badge-featured">Featured</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/55tkbq.png" class="exec-logo" alt="Arceus X">
-        <div>
-          <div class="exec-name">ARCEUS X</div>
-          <div class="exec-rating">
-            <div class="stars">
-              <i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i>
-            </div>
-            <span class="val">5.0</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.718.1110</span></div>
-        <div class="meta-row"><span class="meta-label">VNG Ver.</span><span class="meta-val">2.716.875</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">2.5M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://android.spdmteam.com/" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://vng.spdmteam.com/" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://whop.com/arceus-x/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>V5</a>
-        <a href="https://discord.gg/lugia" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Delta -->
-    <div class="exec-card reveal" data-name="delta">
-      <div class="card-top">
-        <img src="https://i.ibb.co/nbDv3Lx/delta.png" class="exec-logo" alt="Delta">
-        <div>
-          <div class="exec-name">DELTA</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div>
-            <span class="val">4.5</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.718.1110</span></div>
-        <div class="meta-row"><span class="meta-label">VNG Ver.</span><span class="meta-val">2.717.985</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">1.5M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://delta.filenetwork.vip/file/Delta-2.718.1110.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://gloopup.net/Delta/android_vn/" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/deltax" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Cryptic -->
-    <div class="exec-card reveal" data-name="cryptic">
-      <div class="card-top">
-        <img src="https://getcryptic.net/logo.png" class="exec-logo" alt="Cryptic">
-        <div>
-          <div class="exec-name">CRYPTIC</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div>
-            <span class="val">4.6</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.710.707</span></div>
-        <div class="meta-row"><span class="meta-label">VNG Ver.</span><span class="meta-val">2.710.706</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">1.2M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/p2bnbixk4pxpl25/Cryptic_APK_2.710.707.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>64-bit</a>
-        <a href="https://www.mediafire.com/file/lt9e0dt7yuj090s/Cryptic_APK_2.710.707_%252832-bit%2529.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>32-bit</a>
-        <a href="https://www.mediafire.com/file/s4r9rluhwy9j8cs/Cryptic_VNG_APK_2.710.706.apk/file" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/Gqr89p9AmA" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Codex -->
-    <div class="exec-card reveal" data-name="codex">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/mmjwwd.png" class="exec-logo" alt="Codex">
-        <div>
-          <div class="exec-name">CODEX</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.2</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.717.985</span></div>
-        <div class="meta-row"><span class="meta-label">VNG Ver.</span><span class="meta-val">2.715.1115</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">950K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/gc3ny8s4i1novvr/Codex+v2.717.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/codexlol" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Trigon -->
-    <div class="exec-card reveal" data-name="trigon">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/15b32y.webp" class="exec-logo" alt="Trigon">
-        <div>
-          <div class="exec-name">TRIGON</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div>
-            <span class="val">4.4</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.717.985</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">650K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/ppkvt18193s2wf5/Trigon_v2.717.985.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/qQMs6ns5Za" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Krnl -->
-    <div class="exec-card reveal" data-name="krnl">
-      <div class="card-top">
-        <img src="https://cdn.wearedevs.net/images/thumbnails/krnl.jpeg" class="exec-logo" alt="Krnl">
-        <div>
-          <div class="exec-name">KRNL</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div>
-            <span class="val">5.0</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.697.926</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">2M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://krnl.filenetwork.vip/file/krnl_release_2.697.926_2025.11.2_53.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://krnl.filenetwork.vip/file/krnl_vng_release_2.696.799_2025.11.1_31.apk" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/getkrnl" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- JJSploit -->
-    <div class="exec-card reveal" data-name="jjsploit">
-      <div class="card-top">
-        <img src="https://wearedevs.net/images/thumbnails/JJSploit.webp" class="exec-logo" alt="JJSploit">
-        <div>
-          <div class="exec-name">JJSPLOIT</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div>
-            <span class="val">5.0</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.711.876</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">50K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://wrdcdn.net/r/103473/1773521561112/JJSploit_64Bits-2.711.876.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>64-bit</a>
-        <a href="https://wrdcdn.net/r/103473/1772684331411/JJSploit_32Bits-2.710.707.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>32-bit</a>
-        <a href="https://wrdcdn.net/r/103473/1772814173580/JJSploit_VNG_64Bits-2.710.706.apk" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/wearedevs" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- FluxusZ -->
-    <div class="exec-card reveal" data-name="fluxusz fluxus">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/enu2pf.webp" class="exec-logo" alt="FluxusZ">
-        <div>
-          <div class="exec-name">FLUXUSZ</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.0</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.704.1060</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">7.4K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/nacmh2iymo3k8wx/FluxusZ+V3.9.4+ARM64.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>64-bit</a>
-        <a href="https://www.mediafire.com/file/c90t3lsxtq1xsco/FluxusZ+v3.9.4+ARM32.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>32-bit</a>
-        <a href="https://www.mediafire.com/file/rwq79ao105fv5z4/FluxusZ+VNG+V3.9.4+ARM64.apk/file" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/fluxusz" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Punk X -->
-    <div class="exec-card reveal" data-name="punk x punkx">
-      <div class="card-top">
-        <img src="https://cdn.discordapp.com/attachments/1332268943456473108/1450995602132307999/Screenshot_20251218_063820.jpg" class="exec-logo" alt="Punk X">
-        <div>
-          <div class="exec-name">PUNK X</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div>
-            <span class="val">4.2</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.711.876</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">1.2K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/4cz0juuzjfyqqm4/PunkX_64Bits.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>64-bit</a>
-        <a href="https://www.mediafire.com/file/1a3hhemav7hsbs5/PunkX_32Bits-2.710.707_%28FIXED%29.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>32-bit</a>
-        <a href="https://www.mediafire.com/file/tafzvqylpjzp4go/PunkX_VNG_64Bits.apk/file" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/silentcaliber" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Neutron -->
-    <div class="exec-card reveal" data-name="neutron">
-      <div class="card-top">
-        <img src="https://www.neutron-executor.xyz/assets/Neutron-CsHoQbG3.png" class="exec-logo" alt="Neutron">
-        <div>
-          <div class="exec-name">NEUTRON</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.2</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.710.707</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">5K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/k2e1wlxf8xsxvh3/Neutron_64Bits-2.710.707.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>64-bit</a>
-        <a href="https://www.mediafire.com/file/7p894wldwjbgnti/Neutron_32Bits-2.710.707.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>32-bit</a>
-        <a href="https://www.mediafire.com/file/8hpnpds4lp9ye8e/Neutron_VNG_64Bits-2.710.706.apk/file" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/37cV3nFpy9" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Ronix Android -->
-    <div class="exec-card reveal" data-name="ronix">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/j60y0v.webp" class="exec-logo" alt="Ronix">
-        <div>
-          <div class="exec-name">RONIX</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">3.9</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.711.876</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">400K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/gl89ib0yc9h14f5/Ronix_64Bits-2.711.876.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>64-bit</a>
-        <a href="https://wrdcdn.net/r/154522/1773016642772/Ronix_32Bits-2.710.707_EMU_FIX.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>32-bit</a>
-        <a href="https://wrdcdn.net/r/154522/1772783652438/Ronix_VNG_64Bits-2.710.706.apk" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/ronixstudios" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- VegaX -->
-    <div class="exec-card reveal" data-name="vegax vega">
-      <div class="card-top">
-        <img src="https://vegax.gg/assets/img/V_logo_white.png" class="exec-logo" alt="VegaX">
-        <div>
-          <div class="exec-name">VEGAX</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.2</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.717.985</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">550K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://github.com/1f0yt/community/releases/download/Vegax/Vega.X.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/DvvdeNBnZt" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Evon -->
-    <div class="exec-card reveal" data-name="evon">
-      <div class="card-top">
-        <img src="https://evon.cc/favicon.png" class="exec-logo" alt="Evon">
-        <div>
-          <div class="exec-name">EVON</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.0</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.700.937</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">700K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://evon.cc/android/dl-a/Evon.apk" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/x5AT9UMMWG" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Frostware -->
-    <div class="exec-card reveal" data-name="frostware">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/o5nmea.png" class="exec-logo" alt="Frostware">
-        <div>
-          <div class="exec-name">FROSTWARE</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.1</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.703.1353</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">750K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/7t92bsxg22i4ho8/Frostware+GEN+3.1.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/7EuED4NRn9" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <!-- Rift -->
-    <div class="exec-card reveal" data-name="rift">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/lro9zw.png" class="exec-logo" alt="Rift">
-        <div>
-          <div class="exec-name">RIFT</div>
-          <div class="exec-rating">
-            <div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div>
-            <span class="val">4.0</span>
-          </div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.686.866</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">600K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/a53ob60j5m1ddhs/Rift+3.3.0.apk/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://www.mediafire.com/file/vcrfkmjxj14mvjl/Rift+3.0.0+VNG.apk/file" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/VgsHH4FN5P" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
+  <div class="paid-divider"><span>Listed Below</span></div>
+  <div class="pgrid" id="g-pmac"></div>
+</div>
+<div class="panel" id="panel-warning">
+  <div class="wpanel">
+    <div class="wtitle">Read Before <span>Download</span></div>
+    <div class="wcard"><div class="wcard-t">We Are Not the Developers</div><div class="wcard-p">executor.net is a <strong>listing and aggregation site only</strong>. We do not create, develop, maintain, or distribute any executors shown here. All software is owned by their respective third-party creators.</div></div>
+    <div class="wcard"><div class="wcard-t">We Cannot Verify File Contents</div><div class="wcard-p">We do not inspect, audit, or validate the contents of any files linked on this site. <strong>Always scan downloaded files with antivirus software</strong> before executing on your machine.</div></div>
+    <div class="wcard"><div class="wcard-t">Use At Your Own Risk</div><div class="wcard-p">executor.net holds <strong>no responsibility or liability</strong> for any damage, data loss, account bans, or any other consequences from using listed software.</div></div>
+    <div class="wcard"><div class="wcard-t">Antivirus False Positives</div><div class="wcard-p"><strong>Executor software commonly triggers antivirus warnings</strong> due to its nature. This does not necessarily mean the file is malicious. Proceed with caution.</div></div>
+    <div class="wcard"><div class="wcard-t">Third-Party Links</div><div class="wcard-p">All links point to external hosting. <strong>We are not responsible for content at any external URL.</strong></div></div>
   </div>
-</section>
-
-<!-- iOS -->
-<section class="platform-section reveal" data-platform="ios" id="ios">
-  <div class="platform-header">
-    <div class="platform-icon-wrap"><i class="fab fa-apple"></i></div>
-    <div>
-      <div class="platform-title">iOS</div>
-      <div class="platform-sub">Executors for iPhone &amp; iPad</div>
-    </div>
-    <div class="platform-count">5</div>
-  </div>
-  <div class="exec-grid" id="grid-ios">
-
-    <div class="exec-card reveal" data-name="delta">
-      <div class="card-top">
-        <img src="https://i.ibb.co/nbDv3Lx/delta.png" class="exec-logo" alt="Delta">
-        <div><div class="exec-name">DELTA</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.5</span></div>
-        </div>
+</div>
+<div class="panel" id="panel-aboutus">
+  <div class="about-wrap">
+    <div class="about-glyph">EX</div>
+    <div class="about-title">About <span>Us</span></div>
+    <div class="about-desc">executor.net is a free, community-driven hub for Roblox script executors across all platforms. We collect, verify, and list the best free executors available — no paywalls, no surveys, no bullshit. Every link is direct. Every executor is free.</div>
+    <div class="about-creator">
+      <div>
+        <div class="about-creator-label">Created by</div>
+        <div class="about-creator-name">oxyrias</div>
       </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.718.1110</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">500K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://deltaexploits.gg/delta-executor-ios" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/deltax" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
+      <div style="width:1px;height:40px;background:var(--border2);margin:0 8px"></div>
+      <div>
+        <div class="about-creator-label">Find us on</div>
+        <div style="font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:2px">Discord</div>
       </div>
     </div>
-
-    <div class="exec-card reveal" data-name="ronix">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/j60y0v.webp" class="exec-logo" alt="Ronix">
-        <div><div class="exec-name">RONIX</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.711.871</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">50K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/vvp6w3owaug6h7z/Ronix_2.711.871.ipa/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://wrdcdn.net/r/154522/1772929519604/Ronix%20VN_2.709.869.ipa" class="action-btn action-vng hoverable"><i class="fas fa-download"></i>VNG</a>
-        <a href="https://discord.gg/ronixstudios" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="arceus x">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/55tkbq.png" class="exec-logo" alt="Arceus X">
-        <div><div class="exec-name">ARCEUS X</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">4.9</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.668.660</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">1.1M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://ios.spdmteam.com" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/lugia" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="codex">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/mmjwwd.png" class="exec-logo" alt="Codex">
-        <div><div class="exec-name">CODEX</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.2</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.674.786</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">600K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/7afzer5xxo1110n/Codex_2.674.782.ipa/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/codexlol" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="cryptic">
-      <div class="card-top">
-        <img src="https://getcryptic.net/assets/moonglow-HcoSKqMr.png" class="exec-logo" alt="Cryptic">
-        <div><div class="exec-name">CRYPTIC</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.6</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Version</span><span class="meta-val">2.668.660</span></div>
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">750K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/okr6d1frv52l9zo/Cryptic_2.668.658+iOS.ipa/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/qM3WZhQShn" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- WINDOWS -->
-<section class="platform-section reveal" data-platform="windows" id="windows">
-  <div class="platform-header">
-    <div class="platform-icon-wrap"><i class="fab fa-windows"></i></div>
-    <div>
-      <div class="platform-title">WINDOWS</div>
-      <div class="platform-sub">Professional desktop executors</div>
-    </div>
-    <div class="platform-count">21</div>
-  </div>
-  <div class="exec-grid" id="grid-windows">
-
-    <div class="exec-card reveal" data-name="volt">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/cp4f76.png" class="exec-logo" alt="Volt">
-        <div><div class="exec-name">VOLT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">5.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://volt.bz/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.com/invite/ggawp" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="zenith">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://framerusercontent.com/images/x9dgYhhG8T8nA56Naw3P1bMVDg.png?scale-down-to=512" class="exec-logo" alt="Zenith">
-        <div><div class="exec-name">ZENITH</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">5.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://zenith.win/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.com/invite/g8knYkUpQn" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="sirhurt">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/y3rfh1.png" class="exec-logo" alt="SirHurt">
-        <div><div class="exec-name">SIRHURT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">4.9</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://sirhurt.net/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://www.discord.gg/CPKvWTgFdV" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="potassium">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/hryiqu.jpeg" class="exec-logo" alt="Potassium">
-        <div><div class="exec-name">POTASSIUM</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">4.8</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://potassium.pro" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.com/invite/potassium" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="wave">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/4ly86h.webp" class="exec-logo" alt="Wave">
-        <div><div class="exec-name">WAVE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.7</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://getwave.gg" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/getwave" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="seliware">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/d1usrx.jpg" class="exec-logo" alt="Seliware">
-        <div><div class="exec-name">SELIWARE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.6</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://seliware.com/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/m6zAQ3KNsP" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="vortex">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/mcsbx9.webp" class="exec-logo" alt="Vortex">
-        <div><div class="exec-name">VORTEX</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.7</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">17K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://zufile.com/download/x2tDWX6eWv" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/2eZpnxrcRA" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="swift">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/5krpqt.webp" class="exec-logo" alt="Swift">
-        <div><div class="exec-name">SWIFT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.6</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">1.8M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://getswift.vip//download" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/getswiftgg" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="world client">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/yg9ptv.png" class="exec-logo" alt="World Client">
-        <div><div class="exec-name">WORLD CLIENT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.5</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">12K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://useworld.xyz/download" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/WMsYZgmCYA" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="eclipse">
-      <div class="card-top">
-        <img src="https://www.geteclipse.xyz/logo.png" class="exec-logo" alt="Eclipse">
-        <div><div class="exec-name">ECLIPSE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.5</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">3K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://geteclipse.xyz/" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/brXEkKFUtj" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="isaeva">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://user-generated-content.komerza.com/db33f7dc-ded4-4e25-a9c0-8c914e16f440.png" class="exec-logo" alt="Isaeva">
-        <div><div class="exec-name">ISAEVA</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.5</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://getisaeva.xyz/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/isaeva" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="velocity">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/tj6brv.png" class="exec-logo" alt="Velocity">
-        <div><div class="exec-name">VELOCITY</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.9</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">1.2M+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://gofile.io/d/SeOzyy" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/velocityide" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="drift">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/g8asky.webp" class="exec-logo" alt="Drift">
-        <div><div class="exec-name">DRIFT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.2</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">450K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://wrdcdn.net/r/118757/1775168720019/Release1.1.3.zip" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/realzorara" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="lx63">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/sljr5s.webp" class="exec-logo" alt="LX63">
-        <div><div class="exec-name">LX63</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">600K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://gofile.io/d/Z2nAno" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/eQP6Y5pKWQ" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="fluxusz">
-      <div class="card-top">
-        <img src="https://fluxusz.com/icon.png" class="exec-logo" alt="FluxusZ">
-        <div><div class="exec-name">FLUXUSZ</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">70K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://filedm.com/5ZSUg" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/fluxusz" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="ronix">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/j60y0v.webp" class="exec-logo" alt="Ronix">
-        <div><div class="exec-name">RONIX</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.1</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">50K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://wrdcdn.net/r/154522/1776624538288/Ronix-Installer.exe" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/ronixstudios" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="bunni">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/hd9264.webp" class="exec-logo" alt="BUNNI">
-        <div><div class="exec-name">BUNNI.FUN</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.6</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">50K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://gofile.io/d/JzrHU7" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/9DPW2G22cF" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="trigon">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/15b32y.webp" class="exec-logo" alt="Trigon">
-        <div><div class="exec-name">TRIGON EVO</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.4</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">9K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.mediafire.com/file/jwmwp9xhriyqkql/Trigon_Evo_0.2.6.exe/file" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/cCm7byQCPe" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="yub-x">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/rus44k.png" class="exec-logo" alt="Yub-X">
-        <div><div class="exec-name">YUB-X</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">3K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="http://yub-x.net/download" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/7A2CMnbzcz" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="volcano">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/ucf3km.png" class="exec-logo" alt="Volcano">
-        <div><div class="exec-name">VOLCANO</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://volcano.wtf" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/zSnS9kCxJX" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="jjsploit">
-      <div class="card-top">
-        <img src="https://wearedevs.net/images/thumbnails/JJSploit.webp" class="exec-logo" alt="JJSploit">
-        <div><div class="exec-name">JJSPLOIT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i><i class="far fa-star"></i></div><span class="val">3.5</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">5.2K+</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://github.com/wcrddn/wcrddn.github.io/raw/refs/heads/main/perm/jjsploit_8.17.7_x64_en-US.msi" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/wearedevs" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- MACOS -->
-<section class="platform-section reveal" data-platform="macos" id="macos">
-  <div class="platform-header">
-    <div class="platform-icon-wrap"><i class="fas fa-laptop"></i></div>
-    <div>
-      <div class="platform-title">MACOS</div>
-      <div class="platform-sub">Professional Mac executors</div>
-    </div>
-    <div class="platform-count">5</div>
-  </div>
-  <div class="exec-grid" id="grid-macos">
-
-    <div class="exec-card reveal" data-name="hydrogen">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://discord.do/wp-content/uploads/2023/08/Hydrogen.jpg" class="exec-logo" alt="Hydrogen">
-        <div><div class="exec-name">HYDROGEN</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.7</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Install</span><span class="meta-val">Terminal</span></div>
-      </div>
-      <div class="card-actions" style="flex-direction:column;gap:.5rem;">
-        <div style="display:flex;gap:.5rem;width:100%;">
-          <input type="text" readonly value='bash -c "$(curl -fsSL https://www.hydrogen.lat/install)"' style="flex:1;background:var(--gray-800);border:1px solid var(--border);color:var(--gray-200);font-family:'Space Mono',monospace;font-size:.6rem;padding:.5rem .75rem;outline:none;">
-          <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='✓'" style="background:var(--gray-700);border:1px solid var(--border);color:#fff;font-family:'Space Mono',monospace;font-size:.6rem;padding:.5rem .75rem;cursor:pointer;white-space:nowrap;">COPY</button>
-        </div>
-        <div style="display:flex;gap:.5rem;">
-          <a href="https://hydrogenmacos.selly.store/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-          <a href="https://discord.gg/gethydrogen" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-        </div>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="macsploit">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/ii70gl.png" class="exec-logo" alt="MacSploit">
-        <div><div class="exec-name">MACSPLOIT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">4.9</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://www.raptor.fun/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.com/invite/macsploit" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="opiumware">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/fyibqc.webp" class="exec-logo" alt="Opiumware">
-        <div><div class="exec-name">OPIUMWARE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">20K+</span></div>
-      </div>
-      <div class="card-actions" style="flex-direction:column;gap:.5rem;">
-        <div style="display:flex;gap:.5rem;width:100%;">
-          <input type="text" readonly value='curl -s "https://raw.githubusercontent.com/norbyv1/OpiumwareInstall/main/installer" | bash' style="flex:1;background:var(--gray-800);border:1px solid var(--border);color:var(--gray-200);font-family:'Space Mono',monospace;font-size:.55rem;padding:.5rem .75rem;outline:none;">
-          <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='✓'" style="background:var(--gray-700);border:1px solid var(--border);color:#fff;font-family:'Space Mono',monospace;font-size:.6rem;padding:.5rem .75rem;cursor:pointer;white-space:nowrap;">COPY</button>
-        </div>
-        <div style="display:flex;gap:.5rem;">
-          <a href="https://discord.gg/getopium" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-        </div>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="ronix">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/j60y0v.webp" class="exec-logo" alt="Ronix">
-        <div><div class="exec-name">RONIX</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">200K+</span></div>
-      </div>
-      <div class="card-actions" style="flex-direction:column;gap:.5rem;">
-        <div style="display:flex;gap:.5rem;width:100%;">
-          <input type="text" readonly value='bash -c "$(curl -fsSL https://raw.githubusercontent.com/rscwn/testing-nn10/refs/heads/main/Mac/install.sh)"' style="flex:1;background:var(--gray-800);border:1px solid var(--border);color:var(--gray-200);font-family:'Space Mono',monospace;font-size:.55rem;padding:.5rem .75rem;outline:none;">
-          <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='✓'" style="background:var(--gray-700);border:1px solid var(--border);color:#fff;font-family:'Space Mono',monospace;font-size:.6rem;padding:.5rem .75rem;cursor:pointer;white-space:nowrap;">COPY</button>
-        </div>
-        <div style="display:flex;gap:.5rem;">
-          <a href="https://discord.gg/ronixstudios" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-        </div>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="bunni">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/hd9264.webp" class="exec-logo" alt="BUNNI">
-        <div><div class="exec-name">BUNNI.LOL</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.5</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Downloads</span><span class="meta-val">150K+</span></div>
-      </div>
-      <div class="card-actions" style="flex-direction:column;gap:.5rem;">
-        <div style="display:flex;gap:.5rem;width:100%;">
-          <input type="text" readonly value='curl -s "https://raw.githubusercontent.com/VizWasKidnapped/BunniMac/refs/heads/main/MacOSInstaller.sh" | bash' style="flex:1;background:var(--gray-800);border:1px solid var(--border);color:var(--gray-200);font-family:'Space Mono',monospace;font-size:.55rem;padding:.5rem .75rem;outline:none;">
-          <button onclick="navigator.clipboard.writeText(this.previousElementSibling.value);this.textContent='✓'" style="background:var(--gray-700);border:1px solid var(--border);color:#fff;font-family:'Space Mono',monospace;font-size:.6rem;padding:.5rem .75rem;cursor:pointer;white-space:nowrap;">COPY</button>
-        </div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- EXTERNAL -->
-<section class="platform-section reveal" data-platform="external" id="external">
-  <div class="platform-header">
-    <div class="platform-icon-wrap"><i class="fas fa-desktop"></i></div>
-    <div>
-      <div class="platform-title">EXTERNAL</div>
-      <div class="platform-sub">Advanced external injection executors</div>
-    </div>
-    <div class="platform-count">9</div>
-  </div>
-  <div class="exec-grid" id="grid-external">
-
-    <div class="exec-card reveal" data-name="ronin">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/f9kg6k.png" class="exec-logo" alt="Ronin">
-        <div><div class="exec-name">RONIN</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">5.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">External</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://getronin.xyz" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/7GZqhErX8C" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="photon">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/tp1798.webp" class="exec-logo" alt="Photon">
-        <div><div class="exec-name">PHOTON</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i></div><span class="val">4.8</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://photonsys.sellpass.io/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/vro" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="dx9ware">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/bxrhw5.png" class="exec-logo" alt="DX9WARE">
-        <div><div class="exec-name">DX9WARE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.7</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://cultofintellect.com/dx9ware/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.com/invite/3eTeZjywuV" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="isabelle">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/q1obyx.webp" class="exec-logo" alt="Isabelle">
-        <div><div class="exec-name">ISABELLE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.6</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://ext.sellsn.io/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/isabelle" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="matcha">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/w7ob4c.png" class="exec-logo" alt="Matcha">
-        <div><div class="exec-name">MATCHA</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i></div><span class="val">4.5</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://bloxproducts.com/#Matcha" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.gg/asmlol" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="matrix hub">
-      <div class="card-badge-wrap"><span class="badge badge-premium">Premium</span></div>
-      <div class="card-top">
-        <img src="https://files.catbox.moe/gliige.png" class="exec-logo" alt="Matrix Hub">
-        <div><div class="exec-name">MATRIX HUB</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">4.3</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">Premium</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://matrixhubs.shop/" class="action-btn action-premium hoverable"><i class="fas fa-crown"></i>Purchase</a>
-        <a href="https://discord.com/invite/yPjkUBcWgR" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="world client">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/yg9ptv.png" class="exec-logo" alt="World Client">
-        <div><div class="exec-name">WORLD CLIENT</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">5.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">External</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://useworld.xyz/download" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/worldclient" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="eclipse">
-      <div class="card-top">
-        <img src="https://www.geteclipse.xyz/logo.png" class="exec-logo" alt="Eclipse">
-        <div><div class="exec-name">ECLIPSE</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="far fa-star"></i></div><span class="val">5.0</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot online">Online</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">External</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://geteclipse.xyz" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/brXEkKFUtj" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-    <div class="exec-card reveal" data-name="vortex">
-      <div class="card-top">
-        <img src="https://files.catbox.moe/mcsbx9.webp" class="exec-logo" alt="Vortex">
-        <div><div class="exec-name">VORTEX</div>
-          <div class="exec-rating"><div class="stars"><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star lit"></i><i class="fas fa-star-half-alt lit"></i><i class="far fa-star"></i></div><span class="val">3.7</span></div>
-        </div>
-      </div>
-      <div class="card-meta">
-        <div class="meta-row"><span class="meta-label">Status</span><span class="status-dot offline">Offline</span></div>
-        <div class="meta-row"><span class="meta-label">Type</span><span class="meta-val">External</span></div>
-      </div>
-      <div class="card-actions">
-        <a href="https://zufile.com/download/Bp51qrSH31" class="action-btn action-dl hoverable"><i class="fas fa-download"></i>Download</a>
-        <a href="https://discord.gg/2eZpnxrcRA" class="action-btn action-discord hoverable"><i class="fab fa-discord"></i></a>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ABOUT -->
-<section class="about-section reveal" id="about">
-  <div class="about-grid">
-    <div class="about-left">
-      <div class="big-text">WHY<br><span class="dim">CHOOSE</span><br>SAMRAT</div>
-      <p class="about-desc">The most comprehensive and up-to-date collection of Roblox executors across every platform. Independently maintained, community-driven, zero bias.</p>
-      <a href="https://discord.gg/Qrvz4wtmBg" class="btn-main hoverable" style="display:inline-flex;align-items:center;gap:.5rem;"><i class="fab fa-discord" style="font-size:.9rem;"></i>Join Discord</a>
-    </div>
-    <div class="about-right">
-      <div class="feat-list">
-        <div class="feat-item">
-          <div class="feat-num">01</div>
-          <div class="feat-text">
-            <h4>VERIFIED & SAFE</h4>
-            <p>All listed executors are tested, verified, and regularly reviewed for safety.</p>
-          </div>
-        </div>
-        <div class="feat-item">
-          <div class="feat-num">02</div>
-          <div class="feat-text">
-            <h4>ALWAYS UPDATED</h4>
-            <p>Version info, status, and download links updated with every Roblox patch.</p>
-          </div>
-        </div>
-        <div class="feat-item">
-          <div class="feat-num">03</div>
-          <div class="feat-text">
-            <h4>ALL PLATFORMS</h4>
-            <p>Android, iOS, Windows, macOS, and external — every platform covered.</p>
-          </div>
-        </div>
-        <div class="feat-item">
-          <div class="feat-num">04</div>
-          <div class="feat-text">
-            <h4>COMMUNITY DRIVEN</h4>
-            <p>100K+ users trust SAMRAT. Join an active community of developers.</p>
-          </div>
-        </div>
-      </div>
+    <div class="about-stats">
+      <div class="stat"><div class="stat-num">40+</div><div class="stat-label">Executors</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">Platforms</div></div>
+      <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Free Listed</div></div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- FOOTER -->
+</div>
+
 <footer>
-  <div class="footer-grid">
-    <div>
-      <div class="footer-brand">SAMRAT</div>
-      <p class="footer-desc">The premier destination for professional Roblox executors. Trusted by developers and gamers worldwide.</p>
-    </div>
-    <div class="footer-col">
-      <h4>Navigate</h4>
-      <ul>
-        <li><a href="#home" class="hoverable">Home</a></li>
-        <li><a href="#executors" class="hoverable">Executors</a></li>
-        <li><a href="#about" class="hoverable">About</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Platforms</h4>
-      <ul>
-        <li><a href="#android" class="hoverable">Android</a></li>
-        <li><a href="#ios" class="hoverable">iOS</a></li>
-        <li><a href="#windows" class="hoverable">Windows</a></li>
-        <li><a href="#macos" class="hoverable">macOS</a></li>
-        <li><a href="#external" class="hoverable">External</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Links</h4>
-      <ul>
-        <li><a href="https://discord.gg/Qrvz4wtmBg" class="hoverable">Discord</a></li>
-        <li><a href="#" class="hoverable">Privacy Policy</a></li>
-        <li><a href="#" class="hoverable">Terms</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <p>© 2026 SAMRAT — ALL RIGHTS RESERVED</p>
-    <p style="color:var(--gray-600);">ROBLOX EXECUTOR HUB</p>
-  </div>
+  <span>executor.net</span>
+  <span style="color:var(--border2)">all executors are free — created by oxyrias</span>
 </footer>
 
-</div><!-- .wrap -->
-
 <script>
-// === CURSOR ===
-const CUR = document.getElementById('cursor')
-const TRAIL = document.getElementById('cursor-trail')
-let MX = 0, MY = 0, TX = 0, TY = 0
+const WIN=[
+  {n:'Bunni',logo:'https://files.catbox.moe/hd9264.webp',url:'https://gofile.io/d/JzrHU7',lbl:'Download'},
+  {n:'Swift',logo:'https://files.catbox.moe/5krpqt.webp',url:'https://getswift.vip/download',lbl:'Download'},
+  {n:'Velocity',logo:'https://files.catbox.moe/tj6brv.png',url:'https://fileupdown.com/05f3ba575016f584?pt=WXY2emw1UVRqQ29XU01jdEJDT1BtMVpaU0RkcWNUYzNkMHRCZEVWb05teEdaak4zYVVFOVBRPT0%3D',lbl:'Download'},
+  {n:'Yub X',logo:'https://yub-x.net/favicon.ico',url:'https://yub-x.net/download',lbl:'Download'},
+  {n:'Lx63',logo:'https://files.catbox.moe/sljr5s.webp',url:'https://gofile.io/d/Z2nAno',lbl:'Download'},
+  {n:'Xeno',logo:'https://i.imgur.com/placeholder.png',url:'https://gofile.io/d/a70aab03-b712-46e5-a990-ab4e8989761a',lbl:'Download'},
+  {n:'Ronix',logo:'https://files.catbox.moe/j60y0v.webp',url:'https://wrdcdn.net/r/154522/1776624538288/Ronix-Installer.exe',lbl:'Download'},
+  {n:'Drift',logo:'https://files.catbox.moe/g8asky.webp',url:'https://wrdcdn.net/r/118757/1775168720019/Release1.1.3.zip',lbl:'Download'},
+  {n:'Valex',logo:'https://valex.io/favicon.ico',url:'https://valex.io/',lbl:'Website'},
+  {n:'Trigon Evo',logo:'https://files.catbox.moe/15b32y.webp',url:'https://www.mediafire.com/file/jwmwp9xhriyqkql/Trigon_Evo_0.2.6.exe/file',lbl:'Download'},
+  {n:'JJSploit',logo:'https://wearedevs.net/images/thumbnails/JJSploit.webp',url:'https://github.com/wcrddn/wcrddn.github.io/raw/refs/heads/main/perm/jjsploit_8.17.7_x64_en-US.msi',lbl:'Download'},
+  {n:'Solara',logo:'https://getsolara.dev/favicon.ico',url:'https://getsolara.dev/download/static/files/BootstrapperNew.exe',lbl:'Download'},
+  {n:'Madium',logo:'https://i.imgur.com/placeholder.png',url:'https://gofile.io/d/TrO0QU',lbl:'Download'},
+  {n:'Fluxus Z',logo:'https://files.catbox.moe/enu2pf.webp',url:'https://filedm.com/5ZSUg',lbl:'Download'},
+  {n:'Echo',logo:'https://i.imgur.com/placeholder.png',url:'https://mega.nz/file/W2YU1Z6Y#-3XP49FKsq5fNj7cCPN6bhEEoKXhn4YiAQ1gYX9Zg-8',lbl:'Download'},
+  {n:'Azrix',logo:'https://i.imgur.com/placeholder.png',url:'https://filedm.com/axOIy',lbl:'Download'},
+  {n:'Vega X',logo:'https://vegax.gg/assets/img/V_logo_white.png',url:'https://github.com/1f0yt/community/releases/download/Vegax/Vega.X.apk',lbl:'Download'},
+]
+const AND=[
+  {n:'Arceus X',logo:'https://files.catbox.moe/55tkbq.png',url:'https://android.spdmteam.com/',lbl:'Download'},
+  {n:'Krnl',logo:'https://cdn.wearedevs.net/images/thumbnails/krnl.jpeg',url:'https://krnl.filenetwork.vip/file/krnl_release_2.697.926_2025.11.2_53.apk',lbl:'Download'},
+  {n:'Codex',logo:'https://files.catbox.moe/mmjwwd.png',url:'https://www.mediafire.com/file/gc3ny8s4i1novvr/Codex+v2.717.apk/file',lbl:'Download'},
+  {n:'Delta',logo:'https://i.ibb.co/nbDv3Lx/delta.png',url:'https://delta.filenetwork.vip/file/Delta-2.718.1110.apk',lbl:'Download'},
+  {n:'Rift',logo:'https://files.catbox.moe/lro9zw.png',url:'https://www.mediafire.com/file/a53ob60j5m1ddhs/Rift+3.3.0.apk/file',lbl:'Download'},
+  {n:'Ronix MB',logo:'https://files.catbox.moe/j60y0v.webp',url:'https://www.mediafire.com/file/gl89ib0yc9h14f5/Ronix_64Bits-2.711.876.apk/file',lbl:'Download'},
+  {n:'Evon',logo:'https://evon.cc/favicon.png',url:'https://evon.cc/android/dl-a/Evon.apk',lbl:'Download'},
+  {n:'Cryptic',logo:'https://getcryptic.net/logo.png',url:'https://www.mediafire.com/file/p2bnbixk4pxpl25/Cryptic_APK_2.710.707.apk/file',lbl:'Download'},
+  {n:'Punk X',logo:'https://i.imgur.com/placeholder.png',url:'https://www.mediafire.com/file/4cz0juuzjfyqqm4/PunkX_64Bits.apk/file',lbl:'Download'},
+  {n:'Neutron',logo:'https://www.neutron-executor.xyz/assets/Neutron-CsHoQbG3.png',url:'https://www.mediafire.com/file/k2e1wlxf8xsxvh3/Neutron_64Bits-2.710.707.apk/file',lbl:'Download'},
+  {n:'Frostware',logo:'https://files.catbox.moe/o5nmea.png',url:'https://www.mediafire.com/file/7t92bsxg22i4ho8/Frostware+GEN+3.1.apk/file',lbl:'Download'},
+  {n:'Vega X',logo:'https://vegax.gg/assets/img/V_logo_white.png',url:'https://github.com/1f0yt/community/releases/download/Vegax/Vega.X.apk',lbl:'Download'},
+]
+const IOS=[
+  {n:'Delta',logo:'https://i.ibb.co/nbDv3Lx/delta.png',url:'https://deltaexploits.gg/delta-executor-ios',lbl:'Download'},
+  {n:'Arceus X',logo:'https://files.catbox.moe/55tkbq.png',url:'https://ios.spdmteam.com',lbl:'Download'},
+  {n:'Codex',logo:'https://files.catbox.moe/mmjwwd.png',url:'https://www.mediafire.com/file/7afzer5xxo1110n/Codex_2.674.782.ipa/file',lbl:'Download'},
+  {n:'Cryptic',logo:'https://getcryptic.net/assets/moonglow-HcoSKqMr.png',url:'https://www.mediafire.com/file/okr6d1frv52l9zo/Cryptic_2.668.658+iOS.ipa/file',lbl:'Download'},
+  {n:'Ronix',logo:'https://files.catbox.moe/j60y0v.webp',url:'https://www.mediafire.com/file/vvp6w3owaug6h7z/Ronix_2.711.871.ipa/file',lbl:'Download'},
+]
+const EXT=[
+  {n:'Valex',logo:'https://valex.io/favicon.ico',url:'https://github.com/1Softworks/assets/raw/refs/heads/main/Valex_External.zip',lbl:'Download'},
+  {n:'Neurally',logo:'https://files.catbox.moe/mcsbx9.webp',url:'https://gofile.io/d/9TveTd',lbl:'Download'},
+  {n:'TNG',logo:'https://i.imgur.com/placeholder.png',url:'https://zufile.com/download/Bp51qrSH31',lbl:'Download'},
+]
+const PWIN=[
+  {n:'Volcano',logo:'https://files.catbox.moe/ucf3km.png',url:'https://volcano.wtf/',lbl:'Visit Site'},
+  {n:'Volt',logo:'https://files.catbox.moe/cp4f76.png',url:'https://volt.bz/',lbl:'Visit Site'},
+  {n:'Wave',logo:'https://files.catbox.moe/4ly86h.webp',url:'https://getwave.gg/',lbl:'Visit Site'},
+  {n:'Potassium',logo:'https://files.catbox.moe/hryiqu.jpeg',url:'https://www.potassium.pro/',lbl:'Visit Site'},
+  {n:'Seliware',logo:'https://files.catbox.moe/d1usrx.jpg',url:'https://seliware.com/',lbl:'Visit Site'},
+  {n:'Sirhurt',logo:'https://files.catbox.moe/y3rfh1.png',url:'https://sirhurt.net/',lbl:'Visit Site'},
+]
+const PEXT=[
+  {n:'Ronin',logo:'https://files.catbox.moe/f9kg6k.png',url:'https://getronin.xyz/',lbl:'Visit Site'},
+  {n:'Dx9ware',logo:'https://files.catbox.moe/bxrhw5.png',url:'https://cultofintellect.com/dx9ware',lbl:'Visit Site'},
+  {n:'Photon',logo:'https://files.catbox.moe/tp1798.webp',url:'https://photonsys.sellpass.io/',lbl:'Visit Site'},
+  {n:'Isabella',logo:'https://files.catbox.moe/q1obyx.webp',url:'https://universals.mysellauth.com/product/isabelle',lbl:'Visit Site'},
+  {n:'Matrix',logo:'https://files.catbox.moe/gliige.png',url:'https://matrixhubs.shop/',lbl:'Visit Site'},
+  {n:'Matcha',logo:'https://files.catbox.moe/w7ob4c.png',url:'https://bloxproducts.com/#Matcha',lbl:'Visit Site'},
+]
+const PMAC=[
+  {n:'Hydrogen',logo:'https://discord.do/wp-content/uploads/2023/08/Hydrogen.jpg',url:'https://hydrogenmacos.selly.store/',lbl:'Visit Site'},
+  {n:'Macsploit',logo:'https://files.catbox.moe/ii70gl.png',url:'https://www.raptor.fun/',lbl:'Visit Site'},
+]
 
-document.addEventListener('mousemove', e => {
-  MX = e.clientX
-  MY = e.clientY
-  CUR.style.left = MX - 4 + 'px'
-  CUR.style.top = MY - 4 + 'px'
+const PLAT_MAP=[
+  ...WIN.map(e=>({...e,plat:'Windows'})),
+  ...AND.map(e=>({...e,plat:'Android'})),
+  ...IOS.map(e=>({...e,plat:'iOS'})),
+  ...EXT.map(e=>({...e,plat:'External'})),
+  ...PWIN.map(e=>({...e,plat:'Paid Win'})),
+  ...PEXT.map(e=>({...e,plat:'Paid Ext'})),
+  ...PMAC.map(e=>({...e,plat:'Paid Mac'})),
+]
+const TAB_MAP={
+  'Windows':'windows','Android':'android','iOS':'ios','External':'external',
+  'Paid Win':'paidwin','Paid Ext':'paidext','Paid Mac':'paidmac'
+}
+
+const DL=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`
+const WB=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`
+
+function buildGrid(data,id,plat,paid=false){
+  document.getElementById(id).innerHTML=data.map((e,i)=>{
+    const init=e.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+    const hasLogo=e.logo&&!e.logo.includes('placeholder')
+    const logoEl=paid
+      ?(hasLogo?`<img class="plogo" src="${e.logo}" alt="${e.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="plogo-fb" style="display:none">${init}</div>`:`<div class="plogo-fb">${init}</div>`)
+      :(hasLogo?`<img class="clogo" src="${e.logo}" alt="${e.n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="clogo-fb" style="display:none">${init}</div>`:`<div class="clogo-fb">${init}</div>`)
+    if(paid){
+      const ic=e.lbl==='Download'?DL:WB
+      return `<div class="pcard" style="animation-delay:${i*.04}s">
+        <div class="pcard-shine"></div>
+        ${logoEl}
+        <div class="pnum">0${String(i+1).padStart(2,'0')}</div>
+        <div class="pbadge">Premium</div>
+        <div class="pname">${e.n}</div>
+        <div class="pplat">${plat} &bull; Paid</div>
+        <a class="btn-paid" href="${e.url}" target="_blank">${ic} ${e.lbl}</a>
+        <div class="pcard-corner"></div>
+      </div>`
+    }
+    const ic=e.lbl==='Download'?DL:WB
+    return `<div class="card" style="animation-delay:${i*.04}s">
+      ${logoEl}
+      <div class="cnum">0${String(i+1).padStart(2,'0')}</div>
+      <div class="cname">${e.n}</div>
+      <div class="cplat">${plat} &bull; ${e.lbl==='Visit Site'?'Paid':'Free'}</div>
+      <a class="btn-dl" href="${e.url}" target="_blank">${ic} ${e.lbl}</a>
+      <div class="card-corner"></div>
+    </div>`
+  }).join('')
+}
+
+buildGrid(WIN,'g-win','Windows')
+buildGrid(AND,'g-and','Android')
+buildGrid(IOS,'g-ios','iOS')
+buildGrid(EXT,'g-ext','External')
+buildGrid(PWIN,'g-pwin','Windows',true)
+buildGrid(PEXT,'g-pext','External',true)
+buildGrid(PMAC,'g-pmac','macOS',true)
+
+const PAID_PANELS=['paidwin','paidext','paidmac']
+
+function sw(id,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'))
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
+  document.getElementById('panel-'+id).classList.add('active')
+  btn.classList.add('active')
+  document.querySelectorAll(`#panel-${id} .card,#panel-${id} .pcard`).forEach((c,i)=>{c.style.animation='none';c.offsetHeight;c.style.animation=`cIn .5s ${i*.035}s both`})
+  document.body.classList.toggle('paid-mode',PAID_PANELS.includes(id))
+}
+window.sw=sw
+
+function swAbout(){
+  const btn=document.querySelector('.tab.stab')
+  if(btn)sw('aboutus',btn)
+  window.scrollTo({top:0,behavior:'smooth'})
+}
+window.swAbout=swAbout
+
+const SI=document.getElementById('search-input'),SR=document.getElementById('search-results')
+SI.addEventListener('input',()=>{
+  const q=SI.value.trim().toLowerCase()
+  if(!q){SR.classList.remove('open');return}
+  const hits=PLAT_MAP.filter(e=>e.n.toLowerCase().includes(q))
+  if(!hits.length){SR.innerHTML='<div class="sr-empty">No executors found</div>';SR.classList.add('open');return}
+  SR.innerHTML=hits.map(e=>{
+    const init=e.n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase()
+    const hasLogo=e.logo&&!e.logo.includes('placeholder')
+    const lgoEl=hasLogo?`<img class="sr-fb" src="${e.logo}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="sr-fb" style="display:none">${init}</div>`:`<div class="sr-fb">${init}</div>`
+    return `<div class="sr-item" onclick="goTo('${e.plat}','${e.n.replace(/'/g,"\\'")}')">
+      ${lgoEl}<span class="sr-name">${e.n}</span><span class="sr-plat">${e.plat}</span>
+    </div>`
+  }).join('')
+  SR.classList.add('open')
+})
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrap'))SR.classList.remove('open')})
+SI.addEventListener('keydown',e=>{if(e.key==='Escape')SR.classList.remove('open')})
+
+function goTo(plat,name){
+  SR.classList.remove('open');SI.value=''
+  const tabId=TAB_MAP[plat]
+  if(!tabId)return
+  const btn=document.querySelector(`.tab[onclick*="'${tabId}'"]`)
+  if(btn)sw(tabId,btn)
+  setTimeout(()=>{
+    const all=[...document.querySelectorAll(`#panel-${tabId} .cname, #panel-${tabId} .pname`)]
+    const el=all.find(x=>x.textContent===name)
+    if(el){
+      const card=el.closest('.card,.pcard')
+      if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.style.boxShadow='0 0 0 1px rgba(184,164,248,.5), 0 0 40px rgba(124,95,230,.15)';setTimeout(()=>card.style.boxShadow='',1800)}
+    }
+  },80)
+}
+window.goTo=goTo
+
+const DOT=document.getElementById('cursor-dot'),RING=document.getElementById('cursor-ring')
+document.addEventListener('mousemove',e=>{
+  DOT.style.transform=`translate(${e.clientX-2}px,${e.clientY-2}px)`
+  RING.style.transform=`translate(${e.clientX-14}px,${e.clientY-14}px)`
+},{passive:true})
+document.querySelectorAll('a,button,.tab,.card,.pcard').forEach(el=>{
+  el.addEventListener('mouseenter',()=>RING.classList.add('hover'))
+  el.addEventListener('mouseleave',()=>RING.classList.remove('hover'))
 })
 
-;(function animTrail() {
-  TX += (MX - TX) * 0.12
-  TY += (MY - TY) * 0.12
-  TRAIL.style.left = TX - 18 + 'px'
-  TRAIL.style.top = TY - 18 + 'px'
-  requestAnimationFrame(animTrail)
+const TC=document.getElementById('trail-c'),TX=TC.getContext('2d'),TR=[]
+const rsz=()=>{TC.width=innerWidth;TC.height=innerHeight}
+rsz();window.addEventListener('resize',rsz)
+document.addEventListener('mousemove',e=>{TR.push({x:e.clientX,y:e.clientY,t:Date.now()});if(TR.length>28)TR.shift()})
+let _lastTrail=0
+;(function dt(ts){
+  requestAnimationFrame(dt)
+  if(ts-_lastTrail<20)return
+  _lastTrail=ts
+  TX.clearRect(0,0,TC.width,TC.height)
+  const N=Date.now()
+  for(let i=1;i<TR.length;i++){
+    const p=TR[i-1],c=TR[i],t=i/TR.length
+    const al=Math.max(0,(1-(N-c.t)/260))*t*.45
+    const isPaid=document.body.classList.contains('paid-mode')
+    TX.beginPath();TX.moveTo(p.x,p.y);TX.lineTo(c.x,c.y)
+    TX.strokeStyle=isPaid?`rgba(102,85,204,${al})`:`rgba(124,95,230,${al})`
+    TX.lineWidth=t*2;TX.lineCap='round';TX.stroke()
+  }
 })()
 
-document.querySelectorAll('a, button, .hoverable').forEach(el => {
-  el.addEventListener('mouseenter', () => {
-    CUR.style.transform = 'scale(2.5)'
-    TRAIL.style.transform = 'scale(1.5)'
-    TRAIL.style.borderColor = 'rgba(255,255,255,0.5)'
-  })
-  el.addEventListener('mouseleave', () => {
-    CUR.style.transform = 'scale(1)'
-    TRAIL.style.transform = 'scale(1)'
-    TRAIL.style.borderColor = 'rgba(255,255,255,0.25)'
-  })
-})
+const RC=document.getElementById('rain'),RX=RC.getContext('2d')
+let RW,RH,DRPS=[],SPLASHES=[],STREAKS=[]
 
-// === RAIN ===
-const CANVAS = document.getElementById('rain-canvas')
-const CTX = CANVAS.getContext('2d')
-let W, H, DROPS = []
-
-function initRain() {
-  W = CANVAS.width = window.innerWidth
-  H = CANVAS.height = window.innerHeight
-  DROPS = []
-  for (let i = 0; i < 120; i++) {
-    DROPS.push({
-      x: Math.random() * W,
-      y: Math.random() * H,
-      len: Math.random() * 60 + 20,
-      speed: Math.random() * 3 + 1,
-      opacity: Math.random() * 0.4 + 0.05,
-      width: Math.random() * 0.8 + 0.2
-    })
-  }
+function newDrop(rand){
+  const spd=Math.random()*18+12
+  return{x:Math.random()*(RW+60)-30,y:rand?Math.random()*RH:-Math.random()*400,len:Math.random()*90+40,speed:spd,op:Math.random()*.45+.08,w:Math.random()*.55+.1,wx:(Math.random()-.5)*.4}
 }
-
-function drawRain() {
-  CTX.clearRect(0, 0, W, H)
-  for (const d of DROPS) {
-    CTX.beginPath()
-    CTX.moveTo(d.x, d.y)
-    CTX.lineTo(d.x - d.len * 0.15, d.y + d.len)
-    const GRD = CTX.createLinearGradient(d.x, d.y, d.x, d.y + d.len)
-    GRD.addColorStop(0, `rgba(180,200,255,0)`)
-    GRD.addColorStop(0.5, `rgba(200,220,255,${d.opacity})`)
-    GRD.addColorStop(1, `rgba(220,235,255,0)`)
-    CTX.strokeStyle = GRD
-    CTX.lineWidth = d.width
-    CTX.stroke()
-    d.y += d.speed
-    if (d.y > H + d.len) {
-      d.y = -d.len
-      d.x = Math.random() * W
-    }
-  }
-  requestAnimationFrame(drawRain)
+function newStreak(){
+  return{x:Math.random()*RW,y:Math.random()*(RH*.6),h:Math.random()*RH*.25+RH*.05,op:Math.random()*.018+.004,speed:Math.random()*.8+.3,w:Math.random()*.7+.1}
 }
+function mkDrops(){DRPS=[];const n=Math.min(Math.floor(RW/6)+80,180);for(let i=0;i<n;i++)DRPS.push(newDrop(true));STREAKS=[];for(let i=0;i<4;i++)STREAKS.push(newStreak())}
+function rzRC(){RW=RC.width=innerWidth;RH=RC.height=innerHeight;mkDrops()}
+rzRC();window.addEventListener('resize',rzRC)
 
-window.addEventListener('resize', initRain)
-initRain()
-drawRain()
+const MIST=[...Array(5)].map(()=>({x:Math.random()*1400,y:RH*.5+Math.random()*RH*.5,r:Math.random()*180+80,op:Math.random()*.03+.006,dx:(.15+Math.random()*.1)*(Math.random()<.5?1:-1)}))
 
-// === SCROLL REVEAL ===
-const OBS = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => {
-    if (e.isIntersecting) {
-      setTimeout(() => e.target.classList.add('visible'), i * 60)
-      OBS.unobserve(e.target)
+let _lastRain=0
+;(function drawR(ts){
+  requestAnimationFrame(drawR)
+  if(ts-_lastRain<32)return
+  _lastRain=ts
+  RX.clearRect(0,0,RW,RH)
+  for(const m of MIST){
+    const g=RX.createRadialGradient(m.x,m.y,0,m.x,m.y,m.r)
+    g.addColorStop(0,`rgba(70,50,160,${m.op})`);g.addColorStop(1,'rgba(0,0,0,0)')
+    RX.fillStyle=g;RX.beginPath();RX.arc(m.x,m.y,m.r,0,Math.PI*2);RX.fill()
+    m.x+=m.dx;if(m.x<-m.r)m.x=RW+m.r;if(m.x>RW+m.r)m.x=-m.r
+  }
+  for(const s of STREAKS){
+    const g=RX.createLinearGradient(s.x,s.y,s.x,s.y+s.h)
+    g.addColorStop(0,'rgba(180,170,240,0)');g.addColorStop(.4,`rgba(200,195,255,${s.op})`);g.addColorStop(1,'rgba(180,170,240,0)')
+    RX.beginPath();RX.moveTo(s.x,s.y);RX.lineTo(s.x+s.w*.5,s.y+s.h)
+    RX.strokeStyle=g;RX.lineWidth=s.w;RX.stroke()
+    s.y+=s.speed;if(s.y>RH){s.y=-s.h;s.x=Math.random()*RW}
+  }
+  for(const d of DRPS){
+    const ex=d.x+d.wx*d.len,ey=d.y+d.len
+    const g=RX.createLinearGradient(d.x,d.y,ex,ey)
+    g.addColorStop(0,'rgba(180,170,240,0)');g.addColorStop(.25,`rgba(200,190,255,${d.op*.5})`);g.addColorStop(.6,`rgba(215,210,255,${d.op})`);g.addColorStop(1,`rgba(230,228,255,${d.op*.15})`)
+    RX.beginPath();RX.moveTo(d.x,d.y);RX.lineTo(ex,ey)
+    RX.strokeStyle=g;RX.lineWidth=d.w;RX.stroke()
+    RX.beginPath();RX.arc(ex*.05+d.x*.95,ey*.05+d.y*.95,d.w*1.6,0,Math.PI*2)
+    RX.fillStyle=`rgba(230,228,255,${d.op*.4})`;RX.fill()
+    d.y+=d.speed;d.x+=d.wx
+    if(d.y-d.len>RH||d.x<-80||d.x>RW+80){if(d.y>0)SPLASHES.push({x:d.x,y:RH,r:0,mr:d.len*.2,op:.55,w:d.w});Object.assign(d,newDrop(false))}
+  }
+  for(let i=SPLASHES.length-1;i>=0;i--){
+    const s=SPLASHES[i]
+    RX.beginPath();RX.ellipse(s.x,s.y,s.r,s.r*.22,0,0,Math.PI*2)
+    RX.strokeStyle=`rgba(200,190,250,${s.op*.5})`;RX.lineWidth=s.w*.7;RX.stroke()
+    const nd=3+Math.round(s.r/s.mr*3)
+    for(let j=0;j<nd;j++){
+      const ang=-Math.PI+(j/nd)*Math.PI,dist=s.r*.85
+      RX.beginPath();RX.arc(s.x+Math.cos(ang)*dist,s.y+Math.sin(ang)*dist*.3-s.r*.1,s.w*.8,0,Math.PI*2)
+      RX.fillStyle=`rgba(210,200,255,${s.op*.55})`;RX.fill()
     }
-  })
-}, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' })
-
-document.querySelectorAll('.reveal').forEach(el => OBS.observe(el))
-
-// === SEARCH ===
-const SEARCH_INPUT = document.getElementById('exec-search')
-SEARCH_INPUT.addEventListener('input', () => {
-  const Q = SEARCH_INPUT.value.toLowerCase().trim()
-  document.querySelectorAll('.exec-card').forEach(card => {
-    const NAME = card.dataset.name || ''
-    card.style.display = Q === '' || NAME.includes(Q) ? '' : 'none'
-  })
-})
-
-// === FILTER ===
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
-    btn.classList.add('active')
-    const F = btn.dataset.filter
-    document.querySelectorAll('.platform-section').forEach(sec => {
-      if (F === 'all' || sec.dataset.platform === F) {
-        sec.style.display = ''
-        sec.style.animation = 'pageIn 0.5s ease forwards'
-      } else {
-        sec.style.display = 'none'
-      }
-    })
-  })
-})
-
-// === NAV ACTIVE ===
-const NAV_LINKS = document.querySelectorAll('.nav-links a')
-window.addEventListener('scroll', () => {
-  const Y = window.scrollY + 100
-  document.querySelectorAll('section[id], div[id]').forEach(sec => {
-    if (sec.offsetTop <= Y && sec.offsetTop + sec.offsetHeight > Y) {
-      NAV_LINKS.forEach(a => {
-        a.style.color = a.getAttribute('href') === '#' + sec.id ? '#fff' : ''
-      })
-    }
-  })
-})
+    s.r+=1.9;s.op-=.042;if(s.op<=0)SPLASHES.splice(i,1)
+  }
+})()
 </script>
 </body>
 </html>
